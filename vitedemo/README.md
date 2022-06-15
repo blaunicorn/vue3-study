@@ -564,82 +564,264 @@ const toFatherMsg = () => {
 ```
 
 ### 组件之 兄弟组件传值 20220613
-1. 通过生父组件传值。大兄传父，父传给二弟
+1. 通过生父组件传值。大兄A传父Father，父传给二弟B
 ```js
 // SonA.vue
 <template>
-<div>
-这是sonA组件
-{{toFatherMsg}}
-<button @click="toFatherMsg">自定义子传父</button>
-</div>
+  <div>
+    这是sonA组件
+    {{ toFatherMsg }}
+    <button @click="toFather">自定义子传父</button>
+    <hr>
+  </div>
 </template>
-<script setup lang='ts'>
+<script setup >
 let toFatherMsg = ref("111")
 // const emit = defineEmits<{(e:'fn',id:number):void}>()  // ts方式
 const emit = defineEmits(['fn'])  // setup方式
-const toFatherMsg = () => {
-      emit('fn',toFatherMsg)
-    }
-  }
+const toFather = () => {
+  emit('fn', toFatherMsg)
 }
+</script>
 ```
-
-```js
-// SonB.vue
-<template>
-<div>
-这是sonB组件
-{{toFatherMsg}}
-<button @click="toFatherMsg">自定义子传父</button>
-</div>
-</template>
-<script setup lang='ts'>
-let toFatherMsg = ref("111")
-// const emit = defineEmits<{(e:'fn',id:number):void}>()  // ts方式
-const emit = defineEmits(['fn'])  // setup方式
-const toFatherMsg = () => {
-      emit('fn',toFatherMsg)
-    }
-  }
-}
-```
-
 ```js 
 //  Father.vue
 <template>
-<div>
-<div>
- <span>父组件数据</span>
-  <input v-model="msg"/>
- </div>
-这是父组件,htmlz中需要用kebab-case命名，字符串模板没有这一限制
-<Son :for-child-msg="msg" @fn="changeMsg"></Son>  
-<Son :for-child-msg="msg" @fn="changeMsg"></Son>  
-</div>
+  <div>
+    <router-link to="/about">关于我们</router-link>
+    <button @click="go">关于我们</button>
+    <hr>
+    这是接收sonA传过来的值:{{msg}}
+    <hr>
+    <SonA @fn="forChild"></SonA>
+    <SonB :forChildBMsg="msg"></SonB>
+
+  </div>
+  home
 </template>
 <script setup>
-import SonA from '../components/SonA.vue'
-import SonB from '../components/SonB.vue'
-export default {
-  components: {
-    Son
-  },
-  data() {
-    return {
-      msg:'这是子传给父的数据'
-    }
-  },
-    methods: {
-    changeMsg(value) {
-     console.log(value)  // 子组件传过的的值“1111”
-     this.msg = value
-    }
+
+import { useRouter } from 'vue-router';
+import SonA from '../components/SonA.vue';
+import SonB from '../components/SonB.vue';
+let msg = ref('father')
+let router = useRouter()
+  let go =()=> {
+    router.push('/about')
   }
+let forChild = (value)=> {
+  console.log(value)
+  msg.value = value.value
 }
+  // vue2
+  // methods:{
+  //   go() {
+  //     this.router.push('/about')
+  //   }
+  // }
+</script>
 ```
-2. 
-ps 以下学习自 ConardLi 的 Vue3 script-setup 使用指南[https://cloud.tencent.com/developer/article/1944474#:~:text=%3Cscript%20setup%3E%20%E5%9D%97%E4%B8%AD%E7%9A%84%E8%84%9A%E6%9C%AC%E4%BC%9A%E8%A2%AB%E7%BC%96%E8%AF%91%E6%88%90%E7%BB%84%E4%BB%B6%E9%80%89%E9%A1%B9%20setup,%E5%87%BD%E6%95%B0%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%8C%E4%B9%9F%E5%B0%B1%E6%98%AF%E8%AF%B4%E5%AE%83%E4%BC%9A%E5%9C%A8%E6%AF%8F%E6%AC%A1%E7%BB%84%E4%BB%B6%E5%AE%9E%E4%BE%8B%E8%A2%AB%E5%88%9B%E5%BB%BA%E7%9A%84%E6%97%B6%E5%80%99%E6%89%A7%E8%A1%8C%E3%80%82%20%E5%9C%A8%20%3Cscript%20setup%3E%20%E5%A3%B0%E6%98%8E%E7%9A%84%E9%A1%B6%E5%B1%82%E7%BB%91%E5%AE%9A%EF%BC%88%E5%8F%98%E9%87%8F%E3%80%81%E5%87%BD%E6%95%B0%E3%80%81import%E5%BC%95%E5%85%A5%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%89%EF%BC%8C%E9%83%BD%E4%BC%9A%E8%87%AA%E5%8A%A8%E6%9A%B4%E9%9C%B2%E7%BB%99%E6%A8%A1%E6%9D%BF%EF%BC%8C%E5%9C%A8%E6%A8%A1%E6%9D%BF%E4%B8%AD%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8%E3%80%82]
+```js
+// SonB.vue
+<template>
+  <div>
+    这是sonB组件
+    {{ msg }}-父组件传过来的值
+    <hr>
+
+  </div>
+</template>
+<script setup >
+let props = defineProps({
+  forChildBMsg: {
+    type: String,
+    default:' 0'
+  }
+})
+const { forChildBMsg: msg } = toRefs(props)  // 重命名解构
+</script>
+```
+2.mitt.js 兄弟传值
+安装依赖
+```js 
+npm install mitt -S
+
+```
+新建目录 utils/bus.js
+```js 
+import mitt from "mitt";
+const emitter = mitt();
+export default emitter;
+
+```
+```js 
+// SonA.vue
+<template>
+  <div>
+    这是sonA组件
+  <button @click="btn">按钮</button>
+    <hr>
+  </div>
+</template>
+<script setup >
+import emitter  from '../utils/bus';
+let str = ref('这是A组件的数据')
+const btn = () => {
+  // 触发自定义总线why，并传入一个对象
+  emitter.emit('fn',str)   //  发送
+}
+</script>
+```
+```js 
+// SonB.vue
+<template>
+  <div>
+    这是sonB组件:
+    {{ s }}
+    <hr>
+  </div>
+</template>
+<script setup >
+import { onBeforeMount } from 'vue';
+import emitter from '../utils/bus';
+let s = ref('')
+onBeforeMount(() => {
+  emitter.on('fn', e => {   // 接收
+    console.log(e)
+    s.value = e.value
+  })
+})
+</script>
+```
+```js
+总结：
+
+//注册并监听自定义事件
+
+emitter.on(eventType,callback)
+
+//触发自定义事件
+
+emitter.emit(eventType,params)
+
+// mitt的事件取消
+// 取消所有的mitt事件
+emitter.all.clear()
+
+// 取消指定的mitt事件
+// 需要取消指定事件的监听，需要将回调定义在外部，类似于setTimeout
+function onFoo(){...}
+emitter.on('foo',onFoo) //监听
+emitter.off('foo',onFoo) //取消监听
+
+```
+
+### 插槽：共四种情况，匿名插槽、具名插槽、作用域插槽、动态插槽
+1. 匿名插槽
+```js 
+// 父组件中 
+    <SonA @fn="forChild">
+    这是XXX数据
+    这是YYY数据
+    </SonA>
+```
+```js 
+// 子组件中
+  <header>
+    <div>头部</div>
+    <slot></slot>
+  </header>
+  <footer>
+      <div>底部</div>
+      <slot></slot>
+  </footer>
+```
+1. 具名插槽
+```js
+// 父组件中 
+    <SonA @fn="forChild">
+    <template v-slot:first>
+    这是XXX数据
+    </template>
+    <template v-slot:second>   // 可以简写成 #second
+     这是YYY数据
+    </template>
+    </SonA>
+```
+```js 
+// 子组件中
+  <header>
+    <div>头部</div>
+    <slot name="first"></slot>
+  </header>
+  <footer>
+      <div>底部</div>
+      <slot name="second"></slot>
+  </footer>
+```
+3. 作用域插槽：在父组件中访问子组件中才有的数据,并且在父组件中自定义渲染的结构,作用域插槽强调的则是数据作用的【范围】；作用域插槽，就是带参数（数据）的插槽；语法：<slot :自定义name=data中的属性或对象></slot>
+
+```js
+// 父组件中 
+  <template>
+  <div>
+
+    <SonA @fn="forChild" :data="data">
+    <template v-slot:first>
+    这是XXX数据
+    </template>
+     <!-- 解构data -->
+     <!-- 也可以简写成 #default ="{data}" -->
+    <template v-slot="{data}">  
+      {{data.name}}=={{data.age}}
+    </template> 
+    <template v-slot:second>   // 可以简写成 #second
+     这是YYY数据
+    </template>
+    </SonA>
+    </div>
+  </template>
+  <script setup>
+  import SonA from '../components/SonA.vue';
+let data = ref([{ id: 1, name: 'aa', age: 18 }, { id: 2, name: 'bb', age: 10 }, { id: 3, name: 'cc', age: 20 }])
+  </script>
+```
+```js 
+// 子组件中
+<template>
+
+  <header>
+    <div>头部</div>
+    <slot name="first"></slot>
+  </header>
+  <section >
+    <div>中间</div>
+     <div v-for="item in data" :key="item.id">
+     <slot :data="item"></slot>
+     </div>
+  </section>
+  <footer>
+      <div>底部</div>
+      <slot name="second"></slot>
+  </footer>
+</template>
+<script setup>
+ let props = defineProps(['data'])
+</script>
+```
+4. 动态插槽：通过数据切换插槽的名称
+   语法：父组件中 <template #[string]></template>
+
+### teloport 传送，把某些布局或内容传送到其他地方去。必须传送到它之前已渲染出来的元素。
+```
+<teleport to="body"><div>这是传送</div></teleport>
+<teleport to=".class"><div>这是传送</div></teleport>
+<teleport to="#id"><div>这是传送</div></teleport>
+
+```
+
+ 
+ps 以下学自 ConardLi 的 Vue3 script-setup 使用指南[https://cloud.tencent.com/developer/article/1944474#:~:text=%3Cscript%20setup%3E%20%E5%9D%97%E4%B8%AD%E7%9A%84%E8%84%9A%E6%9C%AC%E4%BC%9A%E8%A2%AB%E7%BC%96%E8%AF%91%E6%88%90%E7%BB%84%E4%BB%B6%E9%80%89%E9%A1%B9%20setup,%E5%87%BD%E6%95%B0%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%8C%E4%B9%9F%E5%B0%B1%E6%98%AF%E8%AF%B4%E5%AE%83%E4%BC%9A%E5%9C%A8%E6%AF%8F%E6%AC%A1%E7%BB%84%E4%BB%B6%E5%AE%9E%E4%BE%8B%E8%A2%AB%E5%88%9B%E5%BB%BA%E7%9A%84%E6%97%B6%E5%80%99%E6%89%A7%E8%A1%8C%E3%80%82%20%E5%9C%A8%20%3Cscript%20setup%3E%20%E5%A3%B0%E6%98%8E%E7%9A%84%E9%A1%B6%E5%B1%82%E7%BB%91%E5%AE%9A%EF%BC%88%E5%8F%98%E9%87%8F%E3%80%81%E5%87%BD%E6%95%B0%E3%80%81import%E5%BC%95%E5%85%A5%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%89%EF%BC%8C%E9%83%BD%E4%BC%9A%E8%87%AA%E5%8A%A8%E6%9A%B4%E9%9C%B2%E7%BB%99%E6%A8%A1%E6%9D%BF%EF%BC%8C%E5%9C%A8%E6%A8%A1%E6%9D%BF%E4%B8%AD%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8%E3%80%82]
 和biliblili的Vite + Vue3 + Pinia + 项目 + TypeScript[https://www.bilibili.com/video/BV1aU4y1U7Gv]
 
 ### 与组件选项 setup 函数对比， <script setup> 的优点：
