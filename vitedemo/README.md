@@ -820,7 +820,170 @@ let data = ref([{ id: 1, name: 'aa', age: 18 }, { id: 2, name: 'bb', age: 10 }, 
 
 ```
 
+### 动态组件
+如果要去除响应姓，可以用markRaw()包裹下。
+```
+<template>
+  <ul><li v-for="(item,index) in tabList" :key="index" @click="changeTab(index)">item.name</li></ul>
+  <keep-alive>
+    <component :is="currentTabComponent"></component>
+  </keep-alive>
+</template>
+<script steup>
+import Home from '../components/Home.vue'
+import A from '../components/A.vue'
+import B from '../components/B.vue'
+  let currentTab = ref('home')
+  let tabList = reactive([{name:Home},{name:A},{name:B}])
+  let currentTabComponent = computed(()=> {
+    return 'tab-'+currentTab.toLowerCase()
+  })
+  const changeTab = (index)=> {
+    currentTab.value = tabList[index].name
+  }
+</script>
+
+```
+### 异步加载
+异步加载组件 可以将应用分割成小一些的代码块，并且只在需要的时候才从服务器加载一个模块，减小代码量。
+代码格式
+```js
+ import { defineAsyncComponent } from 'vue'
+ const AsyncComp = defineAsyncComponent(()=> {
+  import('../components/C.vue')
+ })
+```
+```js
+//  A.vue
+<template>
+  <div style="height:400px;background-color:red;">A组件</div>
+</template>
+```
+
+```js
+//  B.vue
+<template>
+  <div style="height:400px;background-color:green;">B组件</div>
+</template>
+```
+```js
+//  C.vue
+<template>
+  <div >C组件
+  <img src="../vitedemo/src/assets/logo.png" style="width:300px;height: 300px;">
+  </div>
+</template>
+```
+```js
+//  Home.vue
+<template>
+  <div>C组件
+  <A></A>
+  <B></B>
+  <C></C>
+  </div>
+</template>
+<script setup>
+ import A from "../components/A.vue"
+ import B from "../components/B.vue"
+ // 直接引入组件
+//  import C from "../components/C.vue"
+ // 异步加载组件
+ import { defineAsyncComponent } from 'vue'
+ const AsyncComp = defineAsyncComponent(()=> {
+  import('../components/C.vue')
+ })
+</script>
+```
+
+
+### 异步插件：为了提升性能 
+#### useIntersectionObserver
+1. 安装依赖 
+```js
+npm install @vueuse/core -S
+```
+2. 在组件中引入功能模块
+
+```js
+<template>
+ <A>
+ </A>
+ <B></B>
+ <C ref="target"  v-if="targetIsVisible"></C>
+</template>
+<script setup>
+ import A from "../components/A.vue"
+ import B from "../components/B.vue"
+ import C from "../components/C.vue"
+
+import { useIntersectionObserver} from '@vueuse/core'
+const target = ref(null)
+const targetIsVisible = ref(false)
+
+const {stop} = useIntersectionObserver(target, ([{isIntersecting}],observerElement)=> {
+  console.log(isIntersecting)  // 判断是否在屏幕中出现，如果组件即将在屏幕中出现，再加载组件
+  if (isIntersecting) {
+    targetIsVisible.value = isIntersecting
+  }  
+})
+</script>
+```
+#### <suspense> 组件提供了另一个方案，允许将等待过程提升到组件树中处理，而不是在单个组件中。
+一个常见的异步组件用例：
+setup 语法糖，可以直接用asyc ，不用await
+```js
+// 子组件
+<template>
+  <div>
+    A组件
+    {{list}}
+  </div>
+</template>
+<scirpt setup>
+import axios from 'axios'
+  let list = ref([])
+  let res = await axios.get('https://v.api.aa1.cn/api/topbaidu/index.php')
+  list.value = res.data.data.list
+</scirpt>
+```
+```js 
+//  父组件中
+<template>
+<Suspense>
+<template #default>
+ <A>
+ </A>
+</template>
+<template #fallback>
+<div>loading</div>
+</template>
+</Suspense>
+<suspense> 组件有两个插槽。它们都只接收一个直接子节点。default 插槽里的节点会尽可能展示出来。如果不能，则展示 fallback 插槽里的节点。
+ <B></B>
+ <C ref="target"  v-if="targetIsVisible"></C>
+</template>
+<script setup>
+ import A from "../components/A.vue"
+ import B from "../components/B.vue"
+ import C from "../components/C.vue"
+
+import { useIntersectionObserver} from '@vueuse/core'
+const target = ref(null)
+const targetIsVisible = ref(false)
+
+const {stop} = useIntersectionObserver(target, ([{isIntersecting}],observerElement)=> {
+  console.log(isIntersecting)  // 判断是否在屏幕中出现，如果组件即将在屏幕中出现，再加载组件
+  if (isIntersecting) {
+    targetIsVisible.value = isIntersecting
+  }  
+})
+</script>
+```
  
+ #### 
+
+
 ps 以下学自 ConardLi 的 Vue3 script-setup 使用指南[https://cloud.tencent.com/developer/article/1944474#:~:text=%3Cscript%20setup%3E%20%E5%9D%97%E4%B8%AD%E7%9A%84%E8%84%9A%E6%9C%AC%E4%BC%9A%E8%A2%AB%E7%BC%96%E8%AF%91%E6%88%90%E7%BB%84%E4%BB%B6%E9%80%89%E9%A1%B9%20setup,%E5%87%BD%E6%95%B0%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%8C%E4%B9%9F%E5%B0%B1%E6%98%AF%E8%AF%B4%E5%AE%83%E4%BC%9A%E5%9C%A8%E6%AF%8F%E6%AC%A1%E7%BB%84%E4%BB%B6%E5%AE%9E%E4%BE%8B%E8%A2%AB%E5%88%9B%E5%BB%BA%E7%9A%84%E6%97%B6%E5%80%99%E6%89%A7%E8%A1%8C%E3%80%82%20%E5%9C%A8%20%3Cscript%20setup%3E%20%E5%A3%B0%E6%98%8E%E7%9A%84%E9%A1%B6%E5%B1%82%E7%BB%91%E5%AE%9A%EF%BC%88%E5%8F%98%E9%87%8F%E3%80%81%E5%87%BD%E6%95%B0%E3%80%81import%E5%BC%95%E5%85%A5%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%89%EF%BC%8C%E9%83%BD%E4%BC%9A%E8%87%AA%E5%8A%A8%E6%9A%B4%E9%9C%B2%E7%BB%99%E6%A8%A1%E6%9D%BF%EF%BC%8C%E5%9C%A8%E6%A8%A1%E6%9D%BF%E4%B8%AD%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8%E3%80%82]
 和biliblili的Vite + Vue3 + Pinia + 项目 + TypeScript[https://www.bilibili.com/video/BV1aU4y1U7Gv]
 
