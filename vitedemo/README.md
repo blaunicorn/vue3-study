@@ -981,8 +981,551 @@ const {stop} = useIntersectionObserver(target, ([{isIntersecting}],observerEleme
 </script>
 ```
  
- #### 
+ #### Mixin：混入。用来分发vue组件的可复用功能
+ 举例： A组件 B组件 C组件都可用的收藏功能
+ 创建mixin目录,新建mixin.js文件
+ ```js
+ // Mixin.js
+import { ref } from 'vue'
+export default function() {
+ let num = ref(1)  // 点击量
+ let favorites = ref(false)  // 是否收藏
+ //  点击动作
+ let  favoritesBtn = () => {
+  if (favorites.value || num.value>0){ num.value--;  favorites.value = false} 
+  else {
+    favorites.value = true
+    num.value++
+  }
 
+ }
+  return {
+    num,favorites,favoritesBtn
+  }
+}
+
+
+```
+ ```js
+// A子组件
+<template>
+  <div>
+    A组件
+    {{list}}
+    {{num}}<button @click="favoritesBtn">{{favorites?'已收藏':'收藏'}}收藏</button>
+  </div>
+</template>
+<scirpt setup>
+import Mixin from "../mixins/mixin.js"
+console.log(Mixin())
+let {num,favorites,favoritesBtn } = Mixin()
+</scirpt>
+```
+ ```js
+// A子组件
+<template>
+  <div>
+    B组件
+    {{list}}
+    {{num}}<button @click="favoritesBtn">{{favorites?'已收藏':'收藏'}}收藏</button>
+  </div>
+</template>
+<scirpt setup>
+import Mixin from "../mixins/mixin.js"
+console.log(Mixin())
+let {num,favorites,favoritesBtn } = Mixin() //  混用数据不是自动共享的，A组件的数据和B组件的数据不是一样的。
+```
+
+ #### Mixin：混入。选项式api方式
+ ```js
+ // Mixin.js
+ export const fav = {
+  data() {
+    return {
+      num:1,
+      favorites:false
+    }
+  },
+  methods: {
+    favBtn(params) {
+      this.num +=params
+      this.favorites = true
+    }
+  }
+ }
+
+```
+ ```js
+// A子组件
+<template>
+  <div>
+    A组件
+    {{list}}
+    {{num}}<button @click="favBtn(1)">{{favorites?'已收藏':'收藏'}}收藏</button>
+  </div>
+</template>
+<scirpt >
+import { fav} from "../mixins/mixin.js"
+export default {
+  mixins: [fav]
+  data() {
+    return {
+      str:'你好'
+    }
+  },
+  methods: {
+
+  }
+}
+</scirpt>
+```
+
+### Provide / Inject 依赖/注入
+
+```js 
+// home.vue 父组件
+<template>
+ <A></A>
+</template>
+<script setup>
+import A  from '../components/A.vue'
+let num = ref(100)
+provide('changeNum',num)  // 提供数据
+</script>
+```
+```js
+// A.vue 组件
+<template>
+{{onum}}
+</template>
+<script setup>
+const onum = inject('changeNum')  // 接受数据,是双向绑定的，所以数据也可以被修改
+</script>
+```
+
+### vuex
+```js 
+ // store/index.js
+
+ import { createStore} from 'vuex';
+
+ export default createStore({
+  state:{
+    num:1,
+    sum:10,
+    str:'这是store的数据。'
+  },
+  getters:{
+    total(state) {
+      return state.sum+state.num
+    }
+  },
+  mutations:{
+    changeNum(state，value) {
+      state.num = 100 + value
+    }
+  },
+  actions:{
+    changeBtn({commit,state},value) {
+      alter('异步')
+      commit('changeNum',value);    
+    }
+  },
+  modules:{
+
+  },
+ })
+
+```
+组件内使用
+```js
+// A.vue 组件
+<template>
+{{onum}} ==> {{total}}<br>
+{{knum}}
+<button @click="changeNum">mutations修改num</button>
+<button @click="changeBtn">actions修改num</button>
+</template>
+<script setup>
+import {useStore } from 'vuex'
+let store = useStore()
+// let onum = store..state.num  // 1 不是响应式的。,需要computed返回
+let   knum = computed(()=> {
+  store.state.num
+})
+let total = store.getters.total   //  同样不是响应式，需要用computed返回
+const changeNum = () => {
+  store.commit('changeNum'，300)   // 点击按钮后，kmum会变化，但onum不会变化
+}
+const changeBtn = () => {
+  store.dispatch('changeBtn'，300)   // 点击按钮后，kmum会变化，但onum不会变化
+  
+}
+</script>
+```
+ps:commit=>mutations,用来触发同步操作的方法。
+dispatch =>actions,用来触发异步操作的方法。
+在store中注册了mutation和action，在组件中用dispatch调用action，然后action用commit调用mutation。
+
+#### vuex命名空间 
+默认情况下 模块内部的getters 、mutations、actions是注册在全局下的 可以通过store直接调用
+为了保证内部模块的高封闭性 需要采取namespaced
+给子模块设置 namespaced : true 就无法使用全局 直接调用了
+```js
+	new Vuex.Store({
+		state:{},
+		getters:{
+			token: state => state.user.token,
+		    name: state => state.setting.name
+		],
+		mutations:{},
+		actions:{},
+		modules: {
+		    // 子模块
+		    user: {
+		      namespaced: true,
+		      state: {
+		        token: "12345"
+		      },
+		      mutations: {
+		        update(state) {
+		          state.token = '使用命名空间'
+		        }
+		      }
+		    },
+		    setting: {
+		      namespaced: false,
+		      state: {
+		        name: "zwj"
+		      },
+		      mutations: {
+		        updates(state) {
+		          state.name = '不使用命名空间'
+		        }
+		      }
+		    }
+		  }
+	})
+// ===============================================================
+    <button @click="updateToken">使用命名空间</button>
+    <button @click="updateName">不使用命名空间</button>
+	
+	export default{
+		methods:{
+			 updateToken() {
+		      this.$store.commit("update");
+		    },
+		    updateName() {
+		      this.$store.commit("updates");
+		    },
+		}
+	}
+// user模块使用了命名空间 所以无法对下面的token属性进行修改
+// setting模块没有使用命名空间 所以可以对下面的name属性进行修改
+```
+直接调用
+带上模块的属性和路径
+```js
+	<button @click="updateToken">使用命名空间</button>
+	
+	export default{
+		methods:{
+			updateToken() {
+		      this.$store.commit("user/update");
+		    },
+		}
+	}
+```
+辅助函数
+带上模块的属性和路径
+```js
+  <button @click="test">使用命名空间</button>
+
+	import {mapMutations} from "vuex"
+	export default{
+		methods:{
+		    // 辅助函数
+		    ...mapMutations(['user/update']),
+		    test(){
+		    	// 执行上方的辅助函数 方便调用
+				this['user/update']()
+			}
+		}
+	}
+```
+createNamespacedHelpers
+创建使用命名空间的模块的辅助函数
+```js
+	<button @click="update">使用命名空间</button>
+	
+	// 引入createNamespacedHelpers
+	import { createNamespacedHelpers} from "vuex";
+	const { mapMutations } = createNamespacedHelpers("user");
+	export default{
+			methods:{
+				...mapMutations(["update"]),
+			}
+	}
+```
+#### vuex持久化存储
+localStorage
+持久化插件：vuex-persistedstate
+```js 
+npm i vuex-presistedstate -S
+```
+```js 
+import persistedstate from 'vuex-presistedstate'
+
+export default createStore({
+  pl :[persistedstate({
+    key:'per-vuex',   // 浏览器中的自定义键名
+    paths:['user','module2' ]  //  需要存储起来的参数
+  })]
+})
+
+```
+
+### Pinia插件
+#### 与vuex的区别
+1. 没有mutations，只有state、getters、actions 
+2.  pinia分模块不需要modules 
+3.  pinia体积更小
+  
+#### pinia的使用
+1. 安装需要 @next 因为 Pinia 2 处于 beta 阶段, Pinia 2 是对应 Vue3 的版本
+```js 
+# 使用 npm
+npm install pinia@next
+# 使用 yarn
+yarn add pinia@next
+```
+2. 创建一个 pinia（根存储）并将其传递给应用程序：
+```js
+// main.js
+import { createPinia } from 'pinia';
+
+app.use(createPinia());
+```
+3. Store
+Store 是一个保存状态和业务逻辑的实体，可以自由读取和写入，并通过导入后在 setup 中使用
+创建一个 store
+```js
+// store.js
+import { defineStore } from "pinia";
+
+// defineStore 调用后返回一个函数，调用该函数获得 Store 实体
+export const useStore = defineStore({
+  // id: 必须的，在所有 Store 中唯一
+  id: "myGlobalState",
+  // state: 返回对象的函数
+  state: ()=> ({
+    count: 1,
+    man:{
+      name: 'zhangsan',
+      age:18
+    }
+  }),
+  getters:{},
+  actinos:{}
+});
+ ```
+使用 Store
+```js
+// xxx.vue
+<template>
+  <div>
+    {{store.count}}
+  </div>
+</template>
+<script>
+  // 导入 Store， 使用自己的路径
+  import { useStore } from "@/store/store.js";
+  export default {
+    setup() {
+      // 调用函数 获得Store
+      const store = useStore();
+      return {
+        store
+      }
+    }
+  }
+</script>
+```
+修改state数据
+```
+// XXX.vue
+import { useStore } from "@/store/index.js";
+import { storeToRefs } from "pinia";
+// const store = useStore();
+const {count, man} = storeToRefs(useStore());
+// 不能直接修改pinia数据， 可以用storeToRefs 修改
+const changeName = () => {
+  console.log(man.value)
+ count.value = 'lisi'
+ man.value.name = 'wangwu'
+}
+//  也可以用store.$patch批量修改, 但不能修改未定义的属性，不建议直接修改
+const patch = ()=> {
+  store.$patch(state=>{ 
+  state.count++
+    state.man.name = "zhangsansan",
+    state.arr.push(1)  // 这个会报错，store内未定义
+    console.log(state)
+    })
+}
+```
+
+5. getters 
+Pinia 中的 Getters 作用与 Vuex 中的 Getters 相同，但使用略有差异
+Pinia 中的 Getters 直接在 Store 上读取，形似 Store.xx，就和一般的属性读取一样
+Getter 第一个参数是 state，是当前的状态，也可以使用 this.xx 获取状态
+Getter 中也可以访问其他的 Getter， 或者是其他的 Store
+```
+// 修改 store.js
+import { defineStore } from "pinia";
+
+import { useOtherStore } from "@/store/otherStore.js";  //  引用其他store
+
+export const useStore = defineStore({
+  id: "myGlobalState",
+  state: ()=> ({
+    count: 2
+  }),
+  getters: {
+    // 一个基本的 Getter： 计算 count 的平方
+    // 使用参数
+    countPow2(state) {
+      return state.count ** 2;
+    },
+    // 使用 this
+    /* 
+    countPow2() {
+      return this.count ** 2;
+    }, 
+    */
+    // 简单的 Getter 直接使用箭头函数
+    // countPow2: state=> state.count ** 2
+
+    // 获取其它 Getter， 直接通过 this
+    countPow2Getter() {
+      return this.countPow2;
+    }
+
+    // 使用其它 Store
+    otherStoreCount(state) {
+      // 这里是其他的 Store，调用获取 Store，就和在 setup 中一样
+      const otherStore = useOtherStore();
+      return otherStore.count;
+    },
+  }
+});
+```
+
+```js
+// otherStore.js
+import { defineStore } from "pinia";
+
+export const useOtherStore = defineStore({
+  id: "otherState",
+  state: ()=> ({
+    count: 5
+  }),
+});
+```
+```js
+// 子组件中
+<template>
+  A组件
+  <hr>
+  <h2>pinia</h2>
+  --{{ count}} =={{man}} === {{ countPow2 }}
+
+</template>
+<script setup>
+
+import { useStore } from "@/store/index.js";
+import { storeToRefs } from "pinia";
+const store = useStore();
+const {count, man, countPow2} = storeToRefs(useStore());
+
+// 不能直接修改pinia数据， 可以用storeToRefs 修改
+const changeName = () => {
+  console.log(man.value)
+  count.value = count.value + 1
+ man.value.name = 'wangwu'
+}
+const patch = ()=> {
+  store.$patch(state=>{
+ 
+  state.count++
+    state.man.name = "zhangsansan",
+    state.arr.push(1)
+    console.log(state)
+    })
+}
+</script>
+```
+4. actions
+Pinia 没有 Mutations，统一在 actions 中操作 state，通过this.xx 访问相应状态
+虽然可以直接操作 Store，但还是推荐在 actions 中操作，保证状态不被意外改变
+action 和普通的函数一样
+action 同样可以像 Getter 一样访问其他的 Store，同上方式使用其它 Store
+```js
+// store.js
+export const useStore({
+  state: ()=> ({
+    count: 2,
+    // ...
+  })
+  // ...
+  actions: {
+    countPlusOne() {
+      this.count++;
+    },
+    countPlus(num) {
+      this.count += num;
+    }
+  }
+})
+```
+```js
+// 子组件中
+<template>
+  A组件
+  <hr>
+  <h2>pinia</h2>
+  --{{ count}} =={{man}} === {{ countPow2 }}
+  <button @click="changeName"> 修改名称</button>
+  <button @click="patch"> 批量修改</button>
+  <button @click="update"> actions修改</button>
+</template>
+<script setup>
+
+import { useStore } from "@/store/index.js";
+import { storeToRefs } from "pinia";
+const store = useStore();
+const {count, man, countPow2} = storeToRefs(useStore());
+
+// 不能直接修改pinia数据， 可以用storeToRefs 修改，但还是建议用actions修改
+const changeName = () => {
+  console.log(man.value)
+  count.value = count.value + 1
+ man.value.name = 'wangwu'
+}
+const patch = ()=> {
+  store.$patch(state=>{ 
+  state.count++
+    state.man.name = "zhangsansan",
+    state.arr.push(1)
+    console.log(state)
+    })
+}
+// 调用actions修改
+const update=()=> {
+  store.countPlus(10)
+}
+</script>
+```
 
 ps 以下学自 ConardLi 的 Vue3 script-setup 使用指南[https://cloud.tencent.com/developer/article/1944474#:~:text=%3Cscript%20setup%3E%20%E5%9D%97%E4%B8%AD%E7%9A%84%E8%84%9A%E6%9C%AC%E4%BC%9A%E8%A2%AB%E7%BC%96%E8%AF%91%E6%88%90%E7%BB%84%E4%BB%B6%E9%80%89%E9%A1%B9%20setup,%E5%87%BD%E6%95%B0%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%8C%E4%B9%9F%E5%B0%B1%E6%98%AF%E8%AF%B4%E5%AE%83%E4%BC%9A%E5%9C%A8%E6%AF%8F%E6%AC%A1%E7%BB%84%E4%BB%B6%E5%AE%9E%E4%BE%8B%E8%A2%AB%E5%88%9B%E5%BB%BA%E7%9A%84%E6%97%B6%E5%80%99%E6%89%A7%E8%A1%8C%E3%80%82%20%E5%9C%A8%20%3Cscript%20setup%3E%20%E5%A3%B0%E6%98%8E%E7%9A%84%E9%A1%B6%E5%B1%82%E7%BB%91%E5%AE%9A%EF%BC%88%E5%8F%98%E9%87%8F%E3%80%81%E5%87%BD%E6%95%B0%E3%80%81import%E5%BC%95%E5%85%A5%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%89%EF%BC%8C%E9%83%BD%E4%BC%9A%E8%87%AA%E5%8A%A8%E6%9A%B4%E9%9C%B2%E7%BB%99%E6%A8%A1%E6%9D%BF%EF%BC%8C%E5%9C%A8%E6%A8%A1%E6%9D%BF%E4%B8%AD%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8%E3%80%82]
 和biliblili的Vite + Vue3 + Pinia + 项目 + TypeScript[https://www.bilibili.com/video/BV1aU4y1U7Gv]
