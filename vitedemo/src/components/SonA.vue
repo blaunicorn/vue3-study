@@ -26,6 +26,7 @@
 
 import { useStore } from "@/store/index.js";
 import { storeToRefs } from "pinia";
+import { onBeforeMount } from "vue";
 const store = useStore();
 const {count, man, changeNum} = storeToRefs(useStore());
 
@@ -48,4 +49,11 @@ const patch = ()=> {
 const update=()=> {
   store.countPlus(10)
 }
+
+import { getSliders } from '../api/slider'
+onBeforeMount(()=> {
+  getSliders().then((res=> {
+    console.log(res.data)
+  }))
+})
 </script>

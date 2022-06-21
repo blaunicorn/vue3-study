@@ -1375,7 +1375,7 @@ const patch = ()=> {
 }
 ```
 
-5. getters 
+5. getters 缓存计算
 Pinia 中的 Getters 作用与 Vuex 中的 Getters 相同，但使用略有差异
 Pinia 中的 Getters 直接在 Store 上读取，形似 Store.xx，就和一般的属性读取一样
 Getter 第一个参数是 state，是当前的状态，也可以使用 this.xx 获取状态
@@ -1526,7 +1526,152 @@ const update=()=> {
 }
 </script>
 ```
+5. pinia的api
+   patch()批量修改,$reste()重置数据,$subscribe()监听处理...
 
+6.  模块引入对比 
+```js 
+// vuex模块划分
+ import user from './modules/user'
+ import menu from './modules/menu'
+export default {
+  modules: {
+    user,
+    menu,
+  }
+}
+export default {
+  state
+}
+```
+ pinia可以以文件区分模块，也可直接导出
+```js 
+// user.js
+import { defineStore } from "pinia";
+
+import { useOtherStore } from "@/store/otherStore.js";  //  引用其他store
+
+export const user = defineStore('user', {
+  id:'firstUser'
+  state:()=> {
+    num:0
+  }
+  getters：{
+      // 使用其它 Store
+    otherStoreCount(state) {
+      // 这里是其他的 Store，调用获取 Store，就和在 setup 中一样
+      const otherStore = useOtherStore();
+      return otherStore.count;
+    },
+  }
+})
+
+```
+```js
+// otherStore.js
+import { defineStore } from "pinia";
+
+export const useOtherStore = defineStore({
+  id: "otherState",
+  state: ()=> ({
+    count: 5
+  }),
+});
+```
+```js
+// XXX.vue
+<scirpt setup>
+import { user } from '../store/user'
+import { useOtherStore } from '../store/user'
+const userStore = user()
+const useOtherStore = useOtherStore()
+let { count } = storeToRefs(userStore) 
+let { count: count1} = storeToRefs(useOtherStore)
+</scirpt>
+
+```
+可以在组件中直接引用，也可以相互引用
+
+7. pinia用插件实现持久化
+   安装
+```
+ npm  install pinia-plugin-persist --save
+```
+引入
+```js 
+// main.js
+import store from './store'
+app.use(store)
+```
+```js
+// store.js
+import { createPinia } from "pinia";
+// 引入持久化插件
+import piniaPluginPersist from "pinia-plugin-persist";
+
+const store = createPinia();
+// 使用插件
+store.use(piniaPluginPersist);
+// 导出store
+export default store;
+
+import { defineStore } from "pinia";
+
+// defineStore 调用后返回一个函数，调用该函数获得 Store 实体
+export const useStore = defineStore({
+  // id: 必须的，在所有 Store 中唯一
+  id: "myGlobalState",
+  //开启数据缓存,默认sessionStorage,通过strategies配置项，可修改存储位置和key，通过paths配置项，配置 哪些参数需要持久化
+  persist: {
+    enabled: true,
+    strategies: [
+      {
+        key: "my_user",
+        storage: localStorage,
+        paths:['count']
+      },
+    ],
+  },
+  // state: 返回对象的函数
+  state: () => ({
+    count: 1,
+    man: {
+      name: "zhangsan",
+      age: 18,
+    },
+    sum:2
+  }),
+```
+
+### vite 设置api代理,解决跨域问题
+```
+// vite.config.js 
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+
+import AutoImport from "unplugin-auto-import/vite";
+import path from "path";
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [vue(), AutoImport({ imports: ["vue", "vue-router"] })], // 自动导入vue和vue-router相关函数
+  resolve: {
+    alias: {
+      // 设置别名
+      "@": path.resolve(__dirname, "src"),
+    },
+  },
+  server: {
+    proxy: {
+      "/api": "https://testapi.tisuba.com",
+    },
+  },
+});
+
+```
+### axios二次封装
+```js 
+//  utils/request.js
+```
 ps 以下学自 ConardLi 的 Vue3 script-setup 使用指南[https://cloud.tencent.com/developer/article/1944474#:~:text=%3Cscript%20setup%3E%20%E5%9D%97%E4%B8%AD%E7%9A%84%E8%84%9A%E6%9C%AC%E4%BC%9A%E8%A2%AB%E7%BC%96%E8%AF%91%E6%88%90%E7%BB%84%E4%BB%B6%E9%80%89%E9%A1%B9%20setup,%E5%87%BD%E6%95%B0%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%8C%E4%B9%9F%E5%B0%B1%E6%98%AF%E8%AF%B4%E5%AE%83%E4%BC%9A%E5%9C%A8%E6%AF%8F%E6%AC%A1%E7%BB%84%E4%BB%B6%E5%AE%9E%E4%BE%8B%E8%A2%AB%E5%88%9B%E5%BB%BA%E7%9A%84%E6%97%B6%E5%80%99%E6%89%A7%E8%A1%8C%E3%80%82%20%E5%9C%A8%20%3Cscript%20setup%3E%20%E5%A3%B0%E6%98%8E%E7%9A%84%E9%A1%B6%E5%B1%82%E7%BB%91%E5%AE%9A%EF%BC%88%E5%8F%98%E9%87%8F%E3%80%81%E5%87%BD%E6%95%B0%E3%80%81import%E5%BC%95%E5%85%A5%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%89%EF%BC%8C%E9%83%BD%E4%BC%9A%E8%87%AA%E5%8A%A8%E6%9A%B4%E9%9C%B2%E7%BB%99%E6%A8%A1%E6%9D%BF%EF%BC%8C%E5%9C%A8%E6%A8%A1%E6%9D%BF%E4%B8%AD%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8%E3%80%82]
 和biliblili的Vite + Vue3 + Pinia + 项目 + TypeScript[https://www.bilibili.com/video/BV1aU4y1U7Gv]
 
