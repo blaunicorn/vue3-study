@@ -45,7 +45,7 @@ vue3 采用 proxy， 不需要遍历对象每一个属性。
 ### reactive() 对象
 
 ### setup 语法糖插件：unplugin-auto-import 解决场景：在组件开发中无需每次都手动引入
-
+yarn  add unplugin-auto-import -D
 ```js
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";

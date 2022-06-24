@@ -1,8 +1,11 @@
 <template>
-Home
-<Header></Header>
-<el-button>下载</el-button>
+  <!-- Home -->
+  <Header></Header>
+  <NavSwiper></NavSwiper>
+  <NewGoodCourse></NewGoodCourse>
 </template>
 <script setup>
-import Header from "../components/common/Header.vue"
+import Header from "../components/common/Header.vue";
+import NavSwiper from "../components/home/NavSwiper.vue";
+import NewGoodCourse from "../components/home/NewGoodCourse.vue";
 </script>

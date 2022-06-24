@@ -1,302 +1,3 @@
-# Vue 3 + Vite
-
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
-
-## 创建并启动项目
-### 创建项目
-```
-npm init @vitejs/app xiaoluxianVideo
-cd xiaoluxianVideo
-npm install
-npm run dev
-```
-### 安装router插件
-```
-npm install vue-router@4 -S
-npm i unplugin-auto-import -D
-npm install axios -S
-```
-### 配置 src/router/index.js
-```js
-import { createRouter, createWebHistory } from "vue-router";
-
-import Home from "../views/Home";
-
-const routes = [
-  { path: "/", redirect: "/home" },
-  { path: "/home", name: "Home", component: Home },
-  {
-    path: "abuout",
-    name: "About",
-    component: () => import("../views/About.vue"),
-  },
-];
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-});
-
-export default router;
-
-```
-App.vue中增加路由管理组件
-```js 
-<template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <router-link to='/'> page1</router-link>
-  <router-link to='/about'>page2 </router-link>
-  <router-view></router-view>
-</template>
-
-```
-挂在到main.js中
-```js
-import { createApp } from "vue";
-import App from "./App.vue";
-
-import router from "./router";
-
-const app = createApp(App);
-
-app.use(router);
-app.mount("#app");
-
-// createApp(App).mount("#app");
-```
-
-初始化样式
-方式一：引入 reset.css
-
-```css 
-/* http://meyerweb.com/eric/tools/css/reset/ 
-   v2.0 | 20110126
-   License: none (public domain)
-   reset.css
-*/
-
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
-}
-/* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-body {
-	line-height: 1;
-}
-ol, ul {
-	list-style: none;
-}
-blockquote, q {
-	quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: '';
-	content: none;
-}
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
-}
-```
-在App.vue中设置样式
-```
-<style>
-@import './assets/css/reset.css'
-</style>
-```
-方式二：使用CSS工具——normalize.css
-安装
-```
-npm install --save normalize.css
-```
-引入
-```
-import 'normalize.css/normalize.css'
-```
-
-### 创建头部组件
-```js 
-// components/common/Header.vue
-<template>
-头部
-</template>
-```
-Home.vue中引入
-```js
-// views/Home.vue
-<template>
-Home
-<Header></Header>
-</template>
-<script setup>
-import Header from "../components/common/Header.vue"
-</script>
-```
-引入element-ui 
-下载
-```
-npm installelement-plus --save
-```
-main.js中引入
-```js
-// main.js 
-import { createApp } from "vue";
-import App from "./App.vue";
-
-import router from "./router";
-
-// 初始化样式
-import "normalize.css/normalize.css";
-import ElementPlus from "element-plus";
-import "element-plus/dist/index.css";
-
-const app = createApp(App);
-
-app.use(ElementPlus);
-app.use(router);
-app.mount("#app");
-```
-### 头部
-注意el图标的引入方式
-```js
-<template>
-  <header>
-    <div class="header-content">
-      <h1 class="content-logo">
-        <img src="../../assets/logo.png" alt="" srcset="">
-      </h1>
-      <div class="content-nav">
-        <ul>
-          <li>首 页</li>
-          <li>课程</li>
-          <li>会员</li>
-        </ul>
-      </div>
-      <div class="search-buy-login">
-        <div class="content-search"><input type="text" placeholder="请输入搜索的课程"><el-icon :size="22"  color="#808080"><search /></el-icon></div>
-        <div class="content-shopping">
-          <el-icon  :size="24" color="#808080"><ShoppingCart/></el-icon>
-        </div>
-        <div class="content-login">登录/注册</div>
-      </div>
-    </div>
-  </header>
-</template>
-<script setup>
-import {Search, ShoppingCart} from "@element-plus/icons-vue"
-</script>
-<style scoped>
-
-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  background-color: #fff;
-  box-shadow: 0px 5px 6px rgba(0, 0, 0, 0.16);
-}
-.header-content {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 1200px;
-  min-width: 800px;
-}
-.content-logo {
-  width: 160px;
-  height: 55px;
-  margin: 10px 0;
-  cursor: pointer;
-}
-.content-logo img {
-  height: 100%;
-  object-fit: cover;
-}
-.content-nav {
-  width: 340px;
-  height: 75px;
-}
-.content-nav ul {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: 75px;
-  margin:0 0;
-  padding: 0 0;
-  list-style: none;
-}
-.content-nav ul li {
-  font-size: 18px;
-  color: #808080;
-  cursor: pointer;
-}
-.search-buy-login {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 650px;
-}
-.search-buy-login svg {
-  cursor: pointer;
-}
-.content-search {
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  width: 350px;
-  height: 35px;
-  background:#f0f2f4;
-  opacity: 1;
-  border-radius: 8px;
-}
-.content-search input {
-  padding: 0 10px;
-  width: 430px;
-  height: 40px;
-  border: 0;
-  border-radius: 8px;
-  background-color: #f0f2f4;
-  color: #808080;
-  font-size: 16px;
-  outline: none;
-}
-.content-login {
-  font-size: 18px;
-  color: #808080;
-  text-align: center;
-  cursor: pointer;
-}
-</style>
-```
-
-### 轮播图组件
-```
 <template>
   <div class="navSwiper">
     <div class="content">
@@ -353,39 +54,53 @@ header {
               </div>
             </div>
           </li>
-          <li>
+          <li
+            v-for="item in firstList"
+            :key="item.id"
+            @mouseenter="mouseHover(item.id)"
+            @mouseleave="mouseOut"
+          >
             <router-link to="/"
-              >Node.js
+              >{{ item.categoryName }}
               <el-icon color="#fff" :size="16">
                 <arrow-right />
               </el-icon>
             </router-link>
-            <div class="cateory-detail">
+            <div class="cateory-detail" v-if="isFirst">
               <div class="detail-main">
                 <div class="detail-desc">基础知识</div>
                 <div class="detail-list">
                   <div class="list-know">知识点：</div>
                   <div class="list-ul">
-                    <router-link to="/" class="list-item">html</router-link>
-                    <router-link to="/" class="list-item">v8</router-link>
+                    <router-link
+                      to="/"
+                      class="list-item"
+                      v-for="item in tagsList"
+                      :key="item.id"
+                      >{{ item.tagName }}</router-link
+                    >
                   </div>
                 </div>
                 <div class="detail-class">
-                  <div class="course-card">
+                  <div
+                    class="course-card"
+                    v-for="item in searchCourseList"
+                    :key="item.id"
+                  >
                     <div class="course-image">
-                      <img
-                        src="https://oss.xuexiluxian.cn/xiaoluxian-vcr/ed4eca4ebbeb4b489de722925a34d086.jpg"
-                        alt=""
-                      />
+                      <img :src="item.courseCover" alt="" />
                     </div>
                     <div class="right">
-                      <div class="course-name">课程标题</div>
-                      <div class="course-degree">中级 · 55人购买</div>
+                      <div class="course-name">{{ item.courseName }}</div>
+                      <div class="course-degree">
+                        {{ item.courseLevel }} ·
+                        {{ item.purchaseCounter + item.purchaseCnt }}人购买
+                      </div>
                       <div class="buy">
                         <div class="buy-free">
                           <div class="course-price">
                             <div class="course-member">会员专享</div>
-                            <div class="price">￥0.01</div>
+                            <div class="price">￥{{ item.discountPrice }}</div>
                           </div>
                           <div class="cart">
                             <div class="cart-image">
@@ -415,8 +130,8 @@ header {
           v-if="slidersList.length > 0"
         >
           <el-carousel-item v-for="item in slidersList" :key="item">
-            <!-- <h3 text="2xl" justify="center">{{ item.img }}</h3> -->
-            <a :href="item.href"> <img :src="item.img" /></a>
+            <!-- <h3 text="2xl" justify="center">{{ item.imageUrl }}</h3> -->
+            <a :href="item.href"> <img :src="item.imageUrl" /></a>
           </el-carousel-item>
         </el-carousel>
       </div>
@@ -442,21 +157,33 @@ header {
 </template>
 <script setup>
 import { ArrowRight } from "@element-plus/icons-vue";
+import { onBeforeMount } from "vue";
+import {
+  getFirstCategorys,
+  getTagsList,
+  getSearchCourse,
+  getSliders,
+} from "@/api/index.js";
+
 let slidersList = ref([
   {
-    img: "https://oss.xuexiluxian.cn/xiaoluxian-vcr/8c6ee4cf7fb54425987871b9a2f52f2e.png",
+    imageUrl:
+      "https://oss.xuexiluxian.cn/xiaoluxian-vcr/8c6ee4cf7fb54425987871b9a2f52f2e.png",
     href: "https://www.xuexiluxian.cn/course/detail/bc669b67e3594bf8a0003e8145de13ea",
   },
   {
-    img: "https://oss.xuexiluxian.cn/xiaoluxian-vcr/1985d6893e044996bf54b0a2ee904981.jpg",
+    imageUrl:
+      "https://oss.xuexiluxian.cn/xiaoluxian-vcr/1985d6893e044996bf54b0a2ee904981.jpg",
     href: "https://www.xuexiluxian.cn/course/detail/bc669b67e3594bf8a0003e8145de13ea",
   },
   {
-    img: "https://oss.xuexiluxian.cn/xiaoluxian-vcr/84f13f71af004296b14d7561a67df282.jpg",
+    imageUrl:
+      "https://oss.xuexiluxian.cn/xiaoluxian-vcr/84f13f71af004296b14d7561a67df282.jpg",
     href: "https://www.xuexiluxian.cn/course/detail/bc669b67e3594bf8a0003e8145de13ea",
   },
   {
-    img: "https://oss.xuexiluxian.cn/xiaoluxian-vcr/84f13f71af004296b14d7561a67df282.jpg",
+    imageUrl:
+      "https://oss.xuexiluxian.cn/xiaoluxian-vcr/84f13f71af004296b14d7561a67df282.jpg",
     href: "https://www.xuexiluxian.cn/course/detail/bc669b67e3594bf8a0003e8145de13ea",
   },
 ]);
@@ -488,6 +215,54 @@ let courseType = ref([
     desc: "笑傲前端技能",
   },
 ]);
+
+// 右侧二级分类默认隐藏
+let isFirst = ref(false);
+
+let firstList = ref([]);
+let tagsList = ref([]);
+let searchCourseList = ref([]);
+// 鼠标移入获取二级分类，鼠标移出清除分类
+const mouseHover = (id) => {
+  if (!id) return;
+  isFirst.value = true;
+  const data = {
+    pageNmu: 1, // int ,默认1
+    pageSize: 10, // int  默认10
+    entity: {
+      firstCategory: id, // string 一级分类ID
+      secondCategory: "", // string 二级分类id
+    },
+    // id,
+  };
+  console.log(data);
+  // 查询标签
+  tagsList.value = [];
+  getTagsList(data).then((res) => {
+    // console.log(res.data.pageInfo.list);
+    tagsList.value = res.data.pageInfo.list;
+  });
+  // 查询课程
+  searchCourseList.value = [];
+  getSearchCourse(data).then((res) => {
+    // console.log(res);
+    searchCourseList.value = res.data.pageInfo.list;
+  });
+};
+const mouseOut = () => {
+  isFirst.value = false;
+};
+onBeforeMount(() => {
+  // 获取轮播图
+  getSliders().then((res) => {
+    slidersList.value = res.data.list;
+  });
+  getFirstCategorys().then((res) => {
+    // console.log(res);
+    // 获取一级课程分类
+    firstList.value = res.data.list;
+  });
+});
 </script>
 <style scoped>
 .navSwiper ul {
@@ -610,7 +385,7 @@ let courseType = ref([
 }
 .list-know {
   width: 70px;
-  height: 30-x;
+  height: 30px;
   line-height: 30px;
 }
 .list-ul {
@@ -636,7 +411,7 @@ let courseType = ref([
   flex-wrap: wrap;
   justify-content: space-between;
   width: 100%;
-  height: 270px;
+  height: 370px;
   padding: 20px 0px;
   background-color: #f3f5f6;
 }
@@ -794,135 +569,3 @@ let courseType = ref([
   font-size: 14px;
 }
 </style>
-
-```
-### axios封装
-```
-//  src/utils/request.js
-import axios from "axios";
-
-//1. 创建axios对象
-const service = axios.create();
-
-//2. 请求拦截器
-service.interceptors.request.use(
-  (config) => {
-    return config;
-  },
-  (error) => {
-    Promise.reject(error);
-  }
-);
-
-//3. 响应拦截器
-service.interceptors.response.use(
-  (response) => {
-    //判断code码
-    return response.data;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-export default service;
-
-```
-### 创建api目录和文件
-```
- // src\api\index.js
- import request from "../utils/request";
-
-// 获取一级分类
-export function getFirstCategorys(params) {
-  return request({
-    url: "/api/course/category/getFirstCategorys",
-    method: "get",
-    params,
-  });
-}
-
-// 获取二级分类,即课程标签
-// {
-//   pageNmu:1,   // int ,默认1
-//   pageSize: 10,  // int  默认10
-//   entity: {
-//     firstCategory:'',  // string 一级分类ID
-//     secondCategory:'',   // string 二级分类id
-//   }
-// }
-export function getTagsList(data) {
-  return request({
-    url: "/api/course/tags/list",
-    method: "post",
-    data,
-  });
-}
-
-// 查询课程
-// {
-//   pageNmu:1,   // int ,默认1
-//   pageSize: 10,  // int  默认10
-//   entity: {
-//     firstCategory:'',  // string 一级分类ID
-//     secondCategory:'',   // string 二级分类id
-//     tags:'',   // string 知识点
-//     isMember:'',   // string 会员课程 传1
-//     isFree:'',   // string 免费课程 传1
-//     courseLevel:'',   // string 课程等级 （1：初级；2：中级：3：高级）
-//     sortBy:'',   // string 排序方式 （1：点击量倒叙：clicks-desc;2:点击量正序:clicks-)
-//   }
-// }
-export function getSearchCourse(data) {
-  return request({
-    url: "/api/course/search",
-    method: "post",
-    data,
-  });
-}
-
-// 图片轮播
-
-export function getSliders(data) {
-  return request({
-    url: "/api/slider/getSliders",
-    method: "get",
-    data,
-  });
-}
-
-export function mostNew(data) {
-  return request({
-    url: "/api/course/category/getFirstCategorys",
-    method: "post",
-    data,
-  });
-}
-
-```
-### 首页-新上好课组件
-创建组件
-```js
-// src/components/home/NewGoodCourse.vue
-<template>
-  <div>new</div>
-</template>
-```
-Home.vue引入NewGoodCourse.vue组件
-```js
-// src\views\Home.vue
-<template>
-	<Header></Header>
-	<NavSwiper></NavSwiper>
-	<NewGoodCourse></NewGoodCourse>
-</template>
-
-<script setup>
-import Header from '../components/common/Header.vue'
-import NavSwiper from '../components/home/NavSwiper.vue'
-import NewGoodCourse from '../components/home/NewGoodCourse.vue'
-</script>
-```
-编写NewGoodCourse.vue组件组件样式布局
-```js
-```
