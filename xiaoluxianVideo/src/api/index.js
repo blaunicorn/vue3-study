@@ -9,7 +9,14 @@ export function getFirstCategorys(params) {
   });
 }
 
-// 获取二级分类,即课程标签
+// 获取二级分类
+export function getSecondCategorys(params) {
+  return request({
+    url: "/api/course/category/getSecondCategorys",
+    params,
+  });
+}
+
 // {
 //   pageNmu:1,   // int ,默认1
 //   pageSize: 10,  // int  默认10
@@ -18,6 +25,7 @@ export function getFirstCategorys(params) {
 //     secondCategory:'',   // string 二级分类id
 //   }
 // }
+//查询课程标签
 export function getTagsList(data) {
   return request({
     url: "/api/course/tags/list",
@@ -53,6 +61,23 @@ export function getSearchCourse(data) {
 export function getSliders(data) {
   return request({
     url: "/api/slider/getSliders",
+    method: "get",
+    data,
+  });
+}
+
+//查询最新课程(新上好课)
+export function mostNewCourse(data) {
+  return request({
+    url: "/api/course/mostNew",
+    method: "post",
+    data,
+  });
+}
+
+export function getSetting(data) {
+  return request({
+    url: "/api/setting/get",
     method: "get",
     data,
   });

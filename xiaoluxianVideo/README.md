@@ -925,4 +925,1188 @@ import NewGoodCourse from '../components/home/NewGoodCourse.vue'
 ```
 编写NewGoodCourse.vue组件组件样式布局
 ```js
+<template>
+  <div class="new-course">
+    <div class="content-title">
+      <div class="content-title-left">
+        <div class="hot">
+          <div class="hot-l">HoT</div>
+          <div class="hot-r"></div>
+        </div>
+        <div class="txt">
+          <div class="txt-top">新上好课</div>
+          <div class="txt-bottom"></div>
+        </div>
+      </div>
+      <div class="more">更多</div>
+    </div>
+    <div class="new-course-content">
+      <ul>
+        <li class="course-item" v-for="item in 4" :key="item">
+          <div class="course-info">
+            <div class="course-bg">
+              <img
+                src="https://oss.xuexiluxian.cn/xiaoluxian-vcr/d00f57f5da1b4313928f33558880cbfe.jpg"
+                alt=""
+                srcset=""
+              />
+            </div>
+            <div class="course-name">js</div>
+            <div class="course-degree">初级 · 386人报名</div>
+            <div class="course-price-pri">￥24</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+<script setup></script>
+<style scoped>
+.new-course {
+  width: 1200px;
+  margin: 0 auto;
+  margin-top: 15px;
+}
+.content-title {
+  display: flex;
+  justify-content: space-between;
+}
+.content-title-left {
+  display: flex;
+}
+.hot {
+  display: flex;
+  height: 38px;
+}
+.hot-l {
+  height: 38px;
+  font-size: 20px;
+  padding: 0 10px;
+  text-align: center;
+  line-height: 38px;
+  color: #ffffff;
+  border-radius: 8px 0 8px 8px;
+  background: linear-gradient(90deg, #ff727f 0%, #fc685c 100%);
+}
+.hot-r {
+  width: 0;
+  height: 0;
+  border: 6px solid #fc685c;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}
+.txt {
+  height: 38px;
+  margin-left: 10px;
+}
+.txt-top {
+  font-size: 24px;
+  padding: 0 5px;
+  color: #222;
+  line-height: 30px;
+  z-index: 1;
+}
+.txt-top::after {
+  content: "";
+  display: block;
+  margin-top: -10px;
+  border-radius: 7px;
+  border-bottom: 14px solid;
+  /* border-bottom: 14px solid #01a1ff; */
+  border-image: -webkit-linear-gradient(90deg, #fbf84f 0%, #fea935 100%) 1 30;
+  clip-path: border-box(0 0 round 5px);
+}
+.more {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  color: #808080;
+}
+.new-course-content {
+  width: 1200px;
+  margin: 15px auto 0px auto;
+}
+.new-course-content ul {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+.course-item {
+  box-sizing: border-box;
+  width: 285px;
+  height: 280px;
+  margin: 0 20px 20px 0;
+  transition: margin-top 0.2s;
+}
+.course-item:hover {
+  margin-top: -10px;
+  cursor: pointer;
+}
+.new-course-content .course-item:nth-child(4n + 0) {
+  margin-right: 0;
+}
+.course-info {
+  width: 100%;
+  height: 270px;
+  background-color: #ffffff;
+  box-shadow: 1px 1px 10px rgba(27, 39, 94, 0.4);
+  opacity: 1;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  overflow: hidden;
+  text-decoration: none;
+}
+.course-bg {
+  width: 100%;
+  height: 160px;
+}
+.course-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.course-name {
+  margin: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #333333;
+  display: -webkit-box;
+  overflow: hidden;
+}
+.course-degree {
+  margin-left: 10px;
+  font-size: 12px;
+  color: #808080;
+}
+.course-price-pri {
+  width: 75px;
+  font-size: 14px;
+  margin-top: 18px;
+  padding: 0 13px;
+  color: rgba(255,114,127,1);
+  font-weight: 700;
+}
+</style>
+
 ```
+### 首页-底部组件
+```js
+// src/components/common/Foot.vue
+<template>
+  <footer>
+    <div class="footer-main">
+      <div class="footer-xlx">
+        <img src="../../assets/img/logo.jpg" alt="" />
+      </div>
+      <div class="footer-factory">
+        <img src="../../assets/logo.png" alt="" srcset="" />g
+      </div>
+      <div class="copyright">
+        <ul class="copy-top">
+          <li>关于我们</li>
+          <li>|</li>
+          <li>联系我们</li>
+          <li>|</li>
+          <li>意见反馈</li>
+          <li>|</li>
+          <li>版权声明</li>
+        </ul>
+        <div class="copy-bottom">
+          <span>{{ copyright }}Copyright 2021 www.tisuba.com 黑备</span>
+          <a
+            data-v-d94f43e2=""
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            class="go"
+            >黑备{{ icp }}</a
+          >
+          <p class="copy-user">
+            <a href="">《用户服务协议》</a>
+            <a href="">《隐私政策》</a>
+          </p>
+        </div>
+      </div>
+      <div class="wx">
+        <div class="wx-bg">
+          <img src="../../assets/img/logo.jpg" alt="" srcset="" />
+        </div>
+        <div class="wx-dsc">官方微信</div>
+      </div>
+      <div class="wx">
+        <div class="wx-bg">
+          <img src="../../assets/img/logo.jpg" />
+        </div>
+        <div class="wx-dsc">咨询老师微信</div>
+      </div>
+    </div>
+  </footer>
+</template>
+<script setup>
+import { onBeforeMount } from "vue";
+import { getSetting } from "../../api/index";
+let copyright = ref("");
+let icp = ref("");
+onBeforeMount(() => {
+  getSetting().then((res) => {
+    copyright.value = res.data.data.copyright;
+    icp.value = res.data.data.icp;
+  });
+});
+</script>
+<style scoped>
+footer {
+  width: 100%;
+  min-width: 1200px;
+  height: 150px;
+  background-color: #3483ff;
+  opacity: 1;
+  border-radius: 0px;
+}
+.footer-main {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 1200px;
+  height: 100%;
+  color: #ffffff;
+  margin: auto;
+}
+.footer-xlx {
+  width: 110px;
+  height: 150px;
+  opacity: 1;
+}
+.footer-xlx img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.footer-factory {
+  width: 130px;
+  height: 150px;
+  margin: 0 20px;
+}
+.footer-factory img {
+  width: 100%;
+  height: 100%;
+}
+.copyright {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items: center;
+}
+.copy-top {
+  display: flex;
+  font-size: 14px;
+  margin: 0 10px 10px 50px;
+}
+.copy-top li {
+  list-style-type: none;
+  margin: 0 10px;
+  color: #ffffff;
+}
+.copy-bottom {
+  font-size: 12px;
+}
+.copy-bottom a {
+  color: #ffffff;
+  text-decoration: underline;
+  padding-left: 10px;
+}
+.wx {
+  margin-left: 20px;
+  width: 80px;
+  height: 100px;
+  font-size: 12px;
+}
+.wx img {
+  width: 100%;
+  height: 100%;
+}
+.wx-dsc {
+  padding-top: 5px;
+  text-align: center;
+}
+.copy-user {
+  margin-top: 10px;
+  text-align: center;
+}
+.copy-user a {
+  text-decoration: none;
+  color: #ffffff;
+}
+</style>
+
+```
+
+### 组件的异步加载
+
+安装vueuse
+```
+npm i @vueuse/core
+```
+使用
+```
+// \src\views\Home.vue
+<template>
+  <Header></Header>
+  <NavSwiper></NavSwiper>
+  <div ref="target">
+    <NewGoodCourse v-if="targetIsVisible"></NewGoodCourse>
+  </div>
+  <Foot></Foot>
+</template>
+
+<script setup>
+import { useIntersectionObserver } from "@vueuse/core";
+
+import Header from "../components/common/Header.vue";
+import NavSwiper from "../components/home/NavSwiper.vue";
+import Foot from "../components/common/Foot.vue";
+const NewGoodCourse = defineAsyncComponent(() =>
+  import("../components/home/NewGoodCourse.vue")
+);
+
+const target = ref(null);
+const targetIsVisible = ref(false);
+
+const { stop } = useIntersectionObserver(target, ([{ isIntersecting }]) => {
+  if (isIntersecting) {
+    targetIsVisible.value = isIntersecting;
+  }
+});
+</script>
+
+```
+
+### 首页之判断课程等级，Mixin复用功能封装
+```js
+// src\mixins\courseType.js
+import { ref } from "vue";
+export default function () {
+  let num = ref(1);
+  let fav = ref(false);
+  let courseTypeFn = (type) => {
+    let value = "";
+    let obj = { 1: "初级", 2: "中级", 3: "高级" };
+    value = obj[type] ? obj[type] : type;
+    return value;
+  };
+
+  return {
+    num,
+    fav,
+    courseTypeFn,
+  };
+}
+
+```
+
+```js
+<template>
+  <!--  src\components\home\NewGoodCourse.vue -->
+  <div class="new-course">
+    <div class="content-title">
+      <div class="content-title-left">
+        <div class="hot">
+          <div class="hot-l">HoT</div>
+          <div class="hot-r"></div>
+        </div>
+        <div class="txt">
+          <div class="txt-top">新上好课</div>
+          <div class="txt-bottom"></div>
+        </div>
+      </div>
+      <div class="more">更多</div>
+    </div>
+    <div class="new-course-content">
+      <ul>
+        <li class="course-item" v-for="item in newCourseList" :key="item.id">
+          <div class="course-info">
+            <div class="course-bg">
+              <img :src="item.courseCover" alt="" srcset="" />
+            </div>
+            <div class="course-name">{{ item.courseName }}js</div>
+            <div class="course-degree">
+              {{ item.courseLevel }}·{{ item.purchaseCouter }}--{{
+                courseTypeFn(item.courseLevel)
+              }}--初级 · 386人报名
+            </div>
+            <!-- <div class="course-price-pri">￥{{ item.discountPrice }}24</div> -->
+            <!-- 增加判断是否收费课程 -->
+            <div class="course-price-zero" v-if="item.discountPrice == 0">
+              <div class="pricefree">免费学习</div>
+              <el-icon :size="24" color="#808080"><Brush /></el-icon>
+            </div>
+            <div class="course-price" v-else-if="item.isMember == 1">
+              <div class="course-memberbg">
+                <span class="course-member">会员免费</span>
+              </div>
+              <div class="price">¥ {{ item.discountPrice }}</div>
+            </div>
+            <div class="course-price-pri" v-else>
+              <div class="price-pri">¥ {{ item.discountPrice }}</div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+<script setup>
+import { Brush } from "@element-plus/icons-vue";
+import { onBeforeMount } from "vue";
+import { mostNewCourse } from "../../api";
+// 混入
+import courseType from "../../mixins/courseType";
+let { courseTypeFn } = courseType();
+//  新上好课的数据
+let newCourseList = ref([]);
+onBeforeMount(() => {
+  const data = {
+    pageNum: 1,
+    pageSize: 8,
+  };
+  mostNewCourse(data).then((res) => {
+    newCourseList.value = res.data.pageInfo.list;
+  });
+});
+</script>
+
+<style scoped>
+.new-course {
+  width: 1200px;
+  margin: 0 auto;
+  margin-top: 15px;
+}
+.content-title {
+  display: flex;
+  justify-content: space-between;
+}
+.content-title-left {
+  display: flex;
+}
+.hot {
+  display: flex;
+  height: 38px;
+}
+.hot-l {
+  height: 38px;
+  font-size: 20px;
+  padding: 0 10px;
+  text-align: center;
+  line-height: 38px;
+  color: #ffffff;
+  border-radius: 8px 0 8px 8px;
+  background: linear-gradient(90deg, #ff727f 0%, #fc685c 100%);
+}
+.hot-r {
+  width: 0;
+  height: 0;
+  border: 6px solid #fc685c;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}
+.txt {
+  height: 38px;
+  margin-left: 10px;
+}
+.txt-top {
+  font-size: 24px;
+  padding: 0 5px;
+  color: #222;
+  line-height: 30px;
+  z-index: 1;
+}
+.txt-top::after {
+  content: "";
+  display: block;
+  margin-top: -10px;
+  border-radius: 7px;
+  border-bottom: 14px solid;
+  /* border-bottom: 14px solid #01a1ff; */
+  border-image: -webkit-linear-gradient(90deg, #fbf84f 0%, #fea935 100%) 1 30;
+  clip-path: border-box(0 0 round 5px);
+}
+.more {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  color: #808080;
+}
+.new-course-content {
+  width: 1200px;
+  margin: 15px auto 0px auto;
+}
+.new-course-content ul {
+  list-style-type: none;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+.course-item {
+  box-sizing: border-box;
+  width: 285px;
+  height: 280px;
+  margin: 0 20px 20px 0;
+  transition: margin-top 0.2s;
+}
+.course-item:hover {
+  margin-top: -10px;
+  cursor: pointer;
+}
+.new-course-content .course-item:nth-child(4n + 0) {
+  margin-right: 0;
+}
+.course-info {
+  width: 100%;
+  height: 270px;
+  background-color: #ffffff;
+  box-shadow: 1px 1px 10px rgba(27, 39, 94, 0.4);
+  opacity: 1;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  overflow: hidden;
+  text-decoration: none;
+}
+.course-bg {
+  width: 100%;
+  height: 160px;
+}
+.course-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.course-name {
+  margin: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #333333;
+  display: -webkit-box;
+  overflow: hidden;
+}
+.course-degree {
+  margin-left: 10px;
+  font-size: 12px;
+  color: #808080;
+}
+.course-price-pri {
+  width: 75px;
+  /* font-size: 14px; */
+  margin-top: 4px;
+  padding: 0 13px;
+  color: rgba(255, 114, 127, 1);
+  font-weight: 700;
+}
+.course-price-zero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 75px;
+  font-size: 14px;
+  margin-top: 15px;
+  padding: 0 10px;
+  color: rgba(53, 134, 255, 1);
+}
+.course-price {
+  display: flex;
+  align-items: center;
+}
+
+.course-memberbg {
+  margin-left: 10px;
+  width: 80px;
+  height: 20px;
+  color: #ffffff;
+  background: linear-gradient(90deg, #ff928e 0%, #fe7062 99%);
+  border-radius: 24px 0px 24px 0px;
+}
+.course-member {
+  line-height: 20px;
+  font-weight: 500;
+  padding-left: 6px;
+}
+.price {
+  margin-left: 5px;
+  line-height: 25px;
+  color: #ff727f;
+  font-weight: 700;
+}
+</style>
+```
+
+### 课程页面
+创建课程页组件Course.vue；增加对应路由；修改公共组件Header；增加转跳
+```vue
+<!-- src\views\Course.vue -->
+<template>
+
+</template>
+
+```
+
+```js
+// src\router\index.js
+import { createRouter, createWebHistory } from "vue-router";
+
+import Home from "../views/Home.vue";
+
+const routes = [
+  { path: "/", redirect: "/home" },
+  { path: "/home", name: "Home", component: Home },
+  {
+    path: "/course",
+    name: "Course",
+    component: () =>
+      import(/* webpackChunkName: "course" */ "../views/Course.vue"),
+  },
+  {
+    path: "/about",
+    name: "About",
+    component: () => import("../views/About.vue"),
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+export default router;
+
+```
+```vue
+<!-- src\components\common\Header.vue -->
+<template>
+  <header>
+    <div class="header-content">
+      <h1 class="content-logo">
+        <img src="../../assets/logo.png" alt="" srcset="" />
+      </h1>
+      <div class="content-nav">
+        <ul>
+          <li><router-link to="/">首 页</router-link></li>
+          <li v-for="item in navList" :key="item">
+            <router-link :to="item.path">{{ item.name }}</router-link>
+          </li>
+        </ul>
+      </div>
+      <div class="search-buy-login">
+        <div class="content-search">
+          <input type="text" placeholder="请输入搜索的课程" /><el-icon
+            :size="22"
+            color="#808080"
+            ><search
+          /></el-icon>
+        </div>
+        <div class="content-shopping">
+          <el-icon :size="24" color="#808080"><ShoppingCart /></el-icon>
+        </div>
+        <div class="content-login">登录/注册</div>
+      </div>
+    </div>
+  </header>
+</template>
+<script setup>
+import { Search, ShoppingCart } from "@element-plus/icons-vue";
+let navList = ref([
+  { name: "课程", path: "/course" },
+  { name: "会员", path: "/member" },
+]);
+</script>
+<style scoped>
+a {
+  text-decoration: none;
+}
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: 0px 5px 6px rgba(0, 0, 0, 0.16);
+}
+.header-content {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 1200px;
+  min-width: 800px;
+}
+.content-logo {
+  width: 160px;
+  height: 55px;
+  margin: 10px 0;
+  cursor: pointer;
+}
+.content-logo img {
+  height: 100%;
+  object-fit: cover;
+}
+.content-nav {
+  width: 340px;
+  height: 75px;
+}
+.content-nav ul {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 75px;
+  margin: 0 0;
+  padding: 0 0;
+  list-style: none;
+}
+.content-nav ul li {
+  font-size: 18px;
+  color: #808080;
+  cursor: pointer;
+}
+.search-buy-login {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 650px;
+}
+.search-buy-login svg {
+  cursor: pointer;
+}
+.content-search {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  width: 350px;
+  height: 35px;
+  background: #f0f2f4;
+  opacity: 1;
+  border-radius: 8px;
+}
+.content-search input {
+  padding: 0 10px;
+  width: 430px;
+  height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background-color: #f0f2f4;
+  color: #808080;
+  font-size: 16px;
+  outline: none;
+}
+.content-login {
+  font-size: 18px;
+  color: #808080;
+  text-align: center;
+  cursor: pointer;
+}
+</style>
+
+```
+
+### 编写课程页组件（Course.vue）布局
+```vue
+<!-- src\views\Course.vue -->
+<template>
+  <Header></Header>
+  <div class="coursemain">
+    <div class="course-main">
+      <section class="search-container">
+        <div class="search-item search-item-transition">
+          <div class="title-name">课程方向</div>
+          <div class="all-items">
+            <el-tag class="category-pointer" effect="plain" type="info"
+              >全部</el-tag
+            >
+            <el-tag class="category-pointer-item" effect="plain" type="info"
+              >Node.js</el-tag
+            >
+          </div>
+        </div>
+        <div class="search-item search-item-transition">
+          <div class="title-name">课程分类</div>
+          <div class="all-items">
+            <el-tag class="category-pointer" effect="plain" type="info"
+              >全部</el-tag
+            >
+            <el-tag class="category-pointer-item" effect="plain" type="info"
+              >Node.js</el-tag
+            >
+          </div>
+        </div>
+        <div class="search-item search-item-transition">
+          <div class="title-name">课程难度</div>
+          <div class="all-items">
+            <el-tag class="category-pointer" effect="plain" type="info"
+              >全部</el-tag
+            >
+            <el-tag class="category-pointer-item" effect="plain" type="info"
+              >Node.js</el-tag
+            >
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="main-container">
+      <div class="container-top">
+        <ul class="all">
+          <li class="item">综合</li>
+          <li class="item split">|</li>
+          <li class="item">最新课程</li>
+          <li class="item split">|</li>
+          <li class="item">最多购买</li>
+          <li class="item split">|</li>
+          <li class="item-price">
+            <span>价格</span>
+            <span class="arrow">
+              <i class="el-icon-caret-top"></i>
+              <i class="el-icon-caret-bottom"></i>
+            </span>
+          </li>
+        </ul>
+        <ul class="right">
+          <li class="right-item">
+            <el-radio-group>
+              <el-radio label="1">免费课程</el-radio>
+              <el-radio label="2">会员课程</el-radio>
+            </el-radio-group>
+          </li>
+        </ul>
+      </div>
+      <div class="container-body">
+        <div class="new-course-content">
+          <ul>
+            <li
+              class="course-item"
+              v-for="item in newCourseList"
+              :key="item.id"
+            >
+              <div class="course-info">
+                <div class="course-bg">
+                  <img :src="item.courseCover" alt="" srcset="" />
+                </div>
+                <div class="course-name">{{ item.courseName }}js</div>
+                <div class="course-degree">
+                  {{ item.courseLevel }}·{{ item.purchaseCouter }}--{{
+                    courseTypeFn(item.courseLevel)
+                  }}--初级 · 386人报名
+                </div>
+                <!-- <div class="course-price-pri">￥{{ item.discountPrice }}24</div> -->
+                <!-- 增加判断是否收费课程 -->
+                <div class="course-price-zero" v-if="item.discountPrice == 0">
+                  <div class="pricefree">免费学习</div>
+                  <el-icon :size="24" color="#808080"><Brush /></el-icon>
+                </div>
+                <div class="course-price" v-else-if="item.isMember == 1">
+                  <div class="course-memberbg">
+                    <span class="course-member">会员免费</span>
+                  </div>
+                  <div class="price">¥ {{ item.discountPrice }}</div>
+                </div>
+                <div class="course-price-pri" v-else>
+                  <div class="price-pri">¥ {{ item.discountPrice }}</div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <Foot></Foot>
+</template>
+<script setup>
+import Header from "../components/common/Header.vue";
+import Foot from "../components/common/Foot.vue";
+import { onBeforeMount } from "vue";
+import { mostNewCourse } from "../api";
+import courseType from "../mixins/courseType";
+let { courseTypeFn } = courseType();
+//  新上好课的数据
+let newCourseList = ref([]);
+onBeforeMount(() => {
+  const data = {
+    pageNum: 1,
+    pageSize: 8,
+  };
+  mostNewCourse(data).then((res) => {
+    newCourseList.value = res.data.pageInfo.list;
+  });
+});
+</script>
+<style scoped>
+.course-main {
+  padding: 20px 0;
+  width: 100%;
+  height: 130px;
+  background: #f3f5f9;
+}
+.search-container {
+  width: 1200px;
+  margin: 0 auto;
+  height: 100%;
+}
+.new-course-content {
+  width: 1200px;
+  margin: 15px auto 0px auto;
+}
+.search-item {
+  display: flex;
+  overflow: hidden;
+  /* cursor: pointer; */
+  height: 45px;
+  transition: all 0.5s;
+}
+.search-item-transition:hover {
+  height: auto;
+  box-shadow: rgba(95 101 105 /10%) 0px 12px 20px 0px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255);
+}
+.search-item .title-name {
+  position: relative;
+  width: 100px;
+  font-size: 16px;
+  font-family: Microsoft YaHei;
+  font-weight: bold;
+  line-height: 25px;
+  text-align: justify-content;
+  color: #333333;
+  padding: 10px;
+  opacity: 1;
+}
+.search-item .title-name::after {
+  position: absolute;
+  content: "";
+  right: 12px;
+  top: 22px;
+  border: 1px solid #333;
+  border-width: 0 1px 1px 0;
+  width: 4px;
+  height: 4px;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+.search-item .all-items {
+  width: calc(100% - 120px);
+  min-height: 25px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.title .all-list {
+  /* width: 40px;
+  height: 25px;
+  line-height: 25px;
+  border-radius: 4px;
+  padding: 0 10px;
+  margin-left: 10px;
+  align-items: center;
+  text-align: center; */
+}
+
+.category-pointer {
+  height: 25px;
+  line-height: 25px;
+  margin: 10px 5px;
+  cursor: pointer;
+  border: none;
+  background: rgba(44, 128, 255, 0.1);
+  color: #2c80ff;
+}
+.category-pointer-item {
+  height: 25px;
+  line-height: 25px;
+  margin: 10px 5px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: rgba(81, 87, 89, 1);
+}
+.category-pointer-item:hover,
+.category-pointer-item:active {
+  background: rgba(44, 128, 255, 0.1);
+  color: #2c80ff;
+}
+.main-container {
+  width: 1200px;
+  margin: 0 auto;
+}
+
+.container-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+.all {
+  display: flex;
+  padding-top: 20px;
+  font-size: 16px;
+  color: #515759;
+  list-style: none;
+}
+.all .item:first-child {
+  margin-right: 20px;
+}
+.all .item {
+  margin: 0 10px;
+  cursor: pointer;
+}
+.right {
+  display: flex;
+  padding-top: 20px;
+  font-size: 16px;
+  color: #515759;
+  list-style: none;
+}
+.right .right-item {
+  margin-left: 10px;
+}
+.right .right-items {
+  margin-left: 0px;
+}
+
+.arrow {
+  position: relative;
+}
+
+.arrow i:first-child {
+  position: absolute;
+  top: -1px;
+}
+
+.arrow i:last-child {
+  position: absolute;
+  top: 7px;
+}
+
+.check {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.up {
+  position: absolute;
+  top: 5px;
+  left: 2px;
+}
+
+.down {
+  position: absolute;
+  top: 15px;
+  left: 2px;
+  transform: rotate(180deg);
+  -ms-transform: rotate(180deg); /* IE 9 */
+  -moz-transform: rotate(180deg); /* Firefox */
+  -webkit-transform: rotate(180deg); /* Safari 和 Chrome */
+  -o-transform: rotate(180deg); /* Opera */
+}
+.new-course-content ul {
+  list-style-type: none;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+.course-item {
+  box-sizing: border-box;
+  width: 285px;
+  height: 280px;
+  margin: 0 20px 20px 0;
+  transition: margin-top 0.2s;
+}
+.course-item:hover {
+  margin-top: -10px;
+  cursor: pointer;
+}
+.new-course-content .course-item:nth-child(4n + 0) {
+  margin-right: 0;
+}
+.course-info {
+  width: 100%;
+  height: 270px;
+  background-color: #ffffff;
+  box-shadow: 1px 1px 10px rgba(27, 39, 94, 0.4);
+  opacity: 1;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  overflow: hidden;
+  text-decoration: none;
+}
+.course-bg {
+  width: 100%;
+  height: 160px;
+}
+.course-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.course-name {
+  margin: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #333333;
+  display: -webkit-box;
+  overflow: hidden;
+}
+.course-degree {
+  margin-left: 10px;
+  font-size: 12px;
+  color: #808080;
+}
+.course-price-pri {
+  width: 75px;
+  /* font-size: 14px; */
+  margin-top: 4px;
+  padding: 0 13px;
+  color: rgba(255, 114, 127, 1);
+  font-weight: 700;
+}
+.course-price-zero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 75px;
+  font-size: 14px;
+  margin-top: 15px;
+  padding: 0 10px;
+  color: rgba(53, 134, 255, 1);
+}
+.course-price {
+  display: flex;
+  align-items: center;
+}
+
+.course-memberbg {
+  margin-left: 10px;
+  width: 80px;
+  height: 20px;
+  color: #ffffff;
+  background: linear-gradient(90deg, #ff928e 0%, #fe7062 99%);
+  border-radius: 24px 0px 24px 0px;
+}
+.course-member {
+  line-height: 20px;
+  font-weight: 500;
+  padding-left: 6px;
+}
+.price {
+  margin-left: 5px;
+  line-height: 25px;
+  color: #ff727f;
+  font-weight: 700;
+}
+</style>
+
+```
+课程筛选条件分为三种情况：一级分类、二级分类、课程难度，逻辑如下：
+1、直接进入课程页，展示所有一级、二级、课程难度
+2、如果点击了一级，展示对应一级下的二级并展示此一级下所有课程
+3、如果直接点击二级，那么一级不动，展示对应二级所有课程
+4、点击一级、二级、课程难度，当前的class类要对应添加

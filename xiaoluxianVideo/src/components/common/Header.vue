@@ -1,20 +1,28 @@
+<!-- src\components\common\Header.vue -->
 <template>
   <header>
     <div class="header-content">
       <h1 class="content-logo">
-        <img src="../../assets/logo.png" alt="" srcset="">
+        <img src="../../assets/logo.png" alt="" srcset="" />
       </h1>
       <div class="content-nav">
         <ul>
-          <li>首 页</li>
-          <li>课程</li>
-          <li>会员</li>
+          <li><router-link to="/">首 页</router-link></li>
+          <li v-for="item in navList" :key="item">
+            <router-link :to="item.path">{{ item.name }}</router-link>
+          </li>
         </ul>
       </div>
       <div class="search-buy-login">
-        <div class="content-search"><input type="text" placeholder="请输入搜索的课程"><el-icon :size="22"  color="#808080"><search /></el-icon></div>
+        <div class="content-search">
+          <input type="text" placeholder="请输入搜索的课程" /><el-icon
+            :size="22"
+            color="#808080"
+            ><search
+          /></el-icon>
+        </div>
         <div class="content-shopping">
-          <el-icon  :size="24" color="#808080"><ShoppingCart/></el-icon>
+          <el-icon :size="24" color="#808080"><ShoppingCart /></el-icon>
         </div>
         <div class="content-login">登录/注册</div>
       </div>
@@ -22,10 +30,16 @@
   </header>
 </template>
 <script setup>
-import {Search, ShoppingCart} from "@element-plus/icons-vue"
+import { Search, ShoppingCart } from "@element-plus/icons-vue";
+let navList = ref([
+  { name: "课程", path: "/course" },
+  { name: "会员", path: "/member" },
+]);
 </script>
 <style scoped>
-
+a {
+  text-decoration: none;
+}
 header {
   display: flex;
   justify-content: center;
@@ -61,7 +75,7 @@ header {
   justify-content: space-around;
   align-items: center;
   height: 75px;
-  margin:0 0;
+  margin: 0 0;
   padding: 0 0;
   list-style: none;
 }
@@ -85,7 +99,7 @@ header {
   padding: 5px 10px;
   width: 350px;
   height: 35px;
-  background:#f0f2f4;
+  background: #f0f2f4;
   opacity: 1;
   border-radius: 8px;
 }
