@@ -289,13 +289,14 @@ onBeforeMount(() => {
 
 .navSwiper {
   padding-top: 1px;
-  width: 100%;
+  width: 1200px;
   height: 640px;
   background: url("https://oss.xuexiluxian.cn/xiaoluxian-vcr/1985d6893e044996bf54b0a2ee904981.jpg")
     center top repeat-x;
   /* opacity: 0.7;
   filter: blur(50px); */
   overflow: hidden;
+  margin: 0 auto;
 }
 .content {
   display: flex;

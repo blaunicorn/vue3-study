@@ -10,6 +10,7 @@ export function getFirstCategorys(params) {
 }
 
 // 获取二级分类
+// Request Query: categoryId  // string true ； -1为all
 export function getSecondCategorys(params) {
   return request({
     url: "/api/course/category/getSecondCategorys",
@@ -35,7 +36,7 @@ export function getTagsList(data) {
 }
 
 // 查询课程
-// {
+//Request Body= {
 //   pageNmu:1,   // int ,默认1
 //   pageSize: 10,  // int  默认10
 //   entity: {
@@ -45,7 +46,7 @@ export function getTagsList(data) {
 //     isMember:'',   // string 会员课程 传1
 //     isFree:'',   // string 免费课程 传1
 //     courseLevel:'',   // string 课程等级 （1：初级；2：中级：3：高级）
-//     sortBy:'',   // string 排序方式 （1：点击量倒叙：clicks-desc;2:点击量正序:clicks-)
+//     sortBy:'',   // string 排序方式 （1：综合 ""：2:最新课程 time-desc；3：最多购买 purchase-desc； 4：价格降序 price-asc；5：价格升序:price-desc;点击量倒序clicks-desc;点击量正序：clicks-asc)
 //   }
 // }
 export function getSearchCourse(data) {
@@ -53,6 +54,14 @@ export function getSearchCourse(data) {
     url: "/api/course/search",
     method: "post",
     data,
+  });
+}
+
+//课程详情
+export function getCourseDetail(params) {
+  return request({
+    url: "/api/course/getDetail",
+    params,
   });
 }
 
@@ -70,6 +79,59 @@ export function getSliders(data) {
 export function mostNewCourse(data) {
   return request({
     url: "/api/course/mostNew",
+    method: "post",
+    data,
+  });
+}
+// 用户名密码登录
+export function loginByJson(data) {
+  return request({
+    url: "/api/u/loginByJson",
+    method: "post",
+    data,
+  });
+}
+
+// 发送注册或登录验证码
+export function sendCaptcha(params = { mobile: "" }) {
+  return request({
+    url: "/api/sms/sendRegisterOrLoginCaptcha",
+    method: "get",
+    params,
+  });
+}
+
+// 手机验证码登录
+export function loginByMobile(data) {
+  return request({
+    url: "/api/u/loginByMobile",
+    method: "post",
+    data,
+  });
+}
+
+// 获取用户个人信息
+//  请求头传用户token，params传临时token
+export function getInfo(params = { token: "" }) {
+  return request({
+    url: "/api/member/getInfo",
+    method: "get",
+    params,
+  });
+}
+
+// 每个页面进入时，访问创建临时token，在后端防止用户重复提交
+export function createToken(data) {
+  return request({
+    url: "/api/token/createToken",
+    method: "post",
+    data,
+  });
+}
+// 退出登录接口
+export function logout(data) {
+  return request({
+    url: "/api/u/logout",
     method: "post",
     data,
   });
