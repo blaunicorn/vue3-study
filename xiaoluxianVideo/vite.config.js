@@ -17,6 +17,11 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": "http://testapi.xuexiluxian.cn",
+      // 突破host和origin的限制
+      headers: {
+        referer: "http://37383uu912.zicp.vip",
+        origin: "https://y.qq.com",
+      },
     },
   },
 });

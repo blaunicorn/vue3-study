@@ -36,7 +36,7 @@
           </div>
 
           <!-- 滑过头像显示 -->
-          <div class="user-info" v-if="isShow != true">
+          <div class="user-info" v-if="isShow == true">
             <div class="user-info-top">
               <img class="avator" :src="userInfo.avatar" alt="" srcset="" />
               <div class="avator-info">
@@ -146,6 +146,8 @@ onBeforeMount(async () => {
     console.log(res);
     //用户信息
     userInfo.value = res.data.data;
+    //pinia直接存储用户信息;
+    useUserStore().userInfo = res.data.data;
     //用户vip
     vipInfo.value = res.data.data.vipInfo;
     //计算会员到期时间

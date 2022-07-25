@@ -137,6 +137,53 @@ export function logout(data) {
   });
 }
 
+//检查是否有权限
+export function courseCheckAuth(params = { courseId: "", chapterId: "" }) {
+  return request({
+    url: "/api/course/checkAuth",
+    params,
+  });
+}
+
+//下载课程资料
+export function downloadAttachment(params) {
+  return request({
+    url: "/api/course/downloadAttachment",
+    params,
+    responseType: "blob",
+  });
+}
+
+//播放课程
+export function playCourse(params = { courseId: "", chapterId: "" }) {
+  return request({
+    url: "/api/player/play",
+    params,
+  });
+}
+
+// 获取最后一次视频播放时间记录
+export function getLastHistoryByChapterId(
+  params = { courseId: "", chapterId: "", memberId: "" }
+) {
+  return request({
+    url: "/api/course/history/getLastHistoryByChapterId",
+    method: "get",
+    params,
+  });
+}
+
+// 记录播放历史
+export function recordHistory(
+  data = { courseId: "", chapterId: "", memberId: "", lastTime: "" }
+) {
+  return request({
+    url: "/api/player/play",
+    method: "post",
+    data,
+  });
+}
+
 export function getSetting(data) {
   return request({
     url: "/api/setting/get",

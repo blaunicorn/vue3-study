@@ -101,9 +101,16 @@
               <div class="item-name">
                 <span class="shipin">视频：</span>
                 <span class="chapter-name">{{ k.chapterName }}--课程标题</span>
-                <span class="free" v-if="k.publicType === 2">试看</span>
+                <span
+                  class="free"
+                  v-if="k.publicType === 2"
+                  @click="goPlay(item, k.id)"
+                  >试看</span
+                >
               </div>
-              <button class="btn-learn">开始学习</button>
+              <button class="btn-learn" @click="goPlay(item, k.id)">
+                开始学习
+              </button>
               <div class="clear-float"></div>
             </li>
           </ul>
@@ -112,7 +119,9 @@
           <div v-if="attachments.length >= 0">
             <div class="source" v-for="item in attachments" :key="item.id">
               <div class="download-course">资料名称</div>
-              <div class="download-btn">下载资料</div>
+              <div class="download-btn" @click="downloadDocuments(item)">
+                下载资料
+              </div>
             </div>
           </div>
           <el-empty v-else description="该课程暂无资料"></el-empty>
@@ -125,14 +134,22 @@
 <script setup>
 //mixin
 import mixin from "../mixins/courseType.js";
-let { courseTypeFn } = mixin();
 //组件
 import { ArrowRight, VideoCamera } from "@element-plus/icons-vue";
+// 引入element-plus进行退出的提示
+import { ElMessage, ElMessageBox } from "element-plus";
 import Header from "../components/common/Header.vue";
 import Foot from "../components/common/Foot.vue";
 //api
-import { getCourseDetail } from "../api";
+import { getCourseDetail, courseCheckAuth, downloadAttachment } from "../api";
 import { onBeforeMount } from "vue";
+// 引入pinia的user模块
+import { useUserStore } from "@/store/user";
+import { useRouter } from "vue-router";
+import { downloadBlobFile } from "@/utils/request";
+// 混入函数
+let { courseTypeFn } = mixin();
+
 // 切换章节和下载资料
 let active = ref(true);
 
@@ -159,6 +176,58 @@ const getCourseDetailFn = (courseId) => {
 onBeforeMount(() => {
   getCourseDetailFn(courseId.value);
 });
+const router = useRouter();
+// 下载资料
+const downloadDocuments = async (item) => {
+  // 查询是否登录状态，如果登录正常走下面流程，如果没有登录，跳转到登录页
+  if (!useUserStore().token) {
+    ElMessage.info({
+      message: "请先登录",
+    });
+    router.push({ name: "Login" });
+    return;
+  }
+  // 查询是否有权限下载，（比如是否购买了本课程）
+  let res = await courseCheckAuth({ courseId: item.courseId });
+  if (!res || !res.data.data.hasAuth) {
+    ElMessage.info({
+      message: "购买该课程后才能下载资料哦",
+    });
+    return;
+  }
+  downloadAttachment({
+    courseId: item.courseId, //课程ID
+    attachmentId: item.id,
+  }).then((res) => {
+    let fileName = item.attachmentName;
+    let fileUrl = item.attachmentUrl;
+    const extName = fileUrl.substring(fileUrl.lastIndexOf("."));
+    fileName = fileName + extName;
+    downloadBlobFile(res, fileName);
+  });
+};
+const goPlay = async (item, chapterId) => {
+  // 查询是否登录状态，如果登录正常走下面流程，如果没有登录，跳转到登录页
+  if (!useUserStore().token) {
+    ElMessage.info({
+      message: "请先登录",
+    });
+    router.push({ name: "Login" });
+    return;
+  }
+  // 查询是否有播放下载，（比如是否购买了本课程）
+  let res = await courseCheckAuth({ courseId: item.courseId });
+  if (!res || !res.data.data.hasAuth) {
+    ElMessage.info({
+      message: "购买该课程后才能观看视频哦",
+    });
+    return;
+  }
+  router.push({
+    name: "CoursePlay",
+    params: { courseId: item.courseId, chapterId: chapterId },
+  });
+};
 </script>
 <style scoped>
 .course-container {

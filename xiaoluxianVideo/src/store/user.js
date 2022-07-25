@@ -6,6 +6,7 @@ export const useUserStore = defineStore({
     return {
       token: "",
       loginTimer: 0,
+      userInfo:{}
     };
   },
   actions: {

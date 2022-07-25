@@ -4,7 +4,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import Index from "../views/index.vue";
 
-
 const routes = [
   { path: "/", redirect: "/home" },
   {
@@ -32,6 +31,19 @@ const routes = [
           icon: "table",
         },
       },
+      {
+        path: "course-play/:courseId/:chapterId", // 可以 params query传参 和 props解耦
+        name: "CoursePlay",
+        component: () =>
+          import(
+            /* webpackChunkName: "CoursePlay" */ "../views/CoursePlay.vue"
+          ),
+        props: (route) => ({
+          courseId: route.params.courseId,
+          chapterId: route.params.chapterId,
+          // id: route.query.id,
+        }),
+      },
     ],
   },
   { path: "/home", name: "Home", component: Home },
@@ -45,7 +57,7 @@ const routes = [
     path: "/course-info/:id", // 可以 params query传参 和 props解耦
     name: "CourseInfo",
     component: () =>
-      import(/* webpackChunkName: "CourseInfo" */ "../views/Course-Info.vue"),
+      import(/* webpackChunkName: "CourseInfo" */ "../views/CourseInfo.vue"),
     // 通过 props 解耦,方式一
     // props: true,
     // 方式二、函数模式来返回 props
@@ -54,6 +66,7 @@ const routes = [
       // id: route.query.id,
     }),
   },
+
   {
     path: "/member",
     name: "Member",
