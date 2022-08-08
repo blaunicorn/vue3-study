@@ -1,5 +1,6 @@
 // src\router\index.js
 import { createRouter, createWebHistory } from "vue-router";
+import { useUserStore } from "../store/user";
 
 import Home from "../views/Home.vue";
 import Index from "../views/index.vue";
@@ -43,6 +44,36 @@ const routes = [
           chapterId: route.params.chapterId,
           // id: route.query.id,
         }),
+      },
+      {
+        path: "cart",
+        name: "Cart",
+        component: () =>
+          import(/* webpackChunkName: "cart" */ "../views/Cart.vue"),
+        beforeEnter: (to, from, next) => {
+          console.log(useUserStore().userInfo.id);
+          if (useUserStore().userInfo.id) {
+            next();
+          } else {
+            next("/login");
+          }
+        },
+      },
+      {
+        path: "confirm-order",
+        name: "ConfirmOrder",
+        component: () =>
+          import(
+            /* webpackChunkName: "ConfirmOrder" */ "../views/ConfirmOrder.vue"
+          ),
+        beforeEnter: (to, from, next) => {
+          console.log(useUserStore().userInfo.id);
+          if (useUserStore().userInfo.id) {
+            next();
+          } else {
+            next("/login");
+          }
+        },
       },
     ],
   },

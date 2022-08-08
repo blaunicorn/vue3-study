@@ -21,7 +21,7 @@
             ><search
           /></el-icon>
         </div>
-        <div class="content-shopping">
+        <div class="content-shopping" @click="goCart">
           <el-icon :size="24" color="#808080"><ShoppingCart /></el-icon>
         </div>
         <div class="content-login" v-if="isLogin === false">
@@ -140,6 +140,11 @@ onBeforeMount(async () => {
   //   console.log(res);
   // });
   const res2 = await createToken();
+  let token = useUserStore().token;
+  if (!token) {
+    return;
+  }
+
   const res = await getInfo({ token: res2.data.token });
   //已获取用户的信息
   if (res.meta.code === "200") {
@@ -156,6 +161,16 @@ onBeforeMount(async () => {
     endTimeVip.value = Math.floor(endTime / 1000 / 60 / 60 / 24);
     //判断是否可以获取用户信息
     isLogin.value = true;
+  } else {
+    ElMessage({
+      type: "warning",
+      message: res.meta.msg,
+    });
+    //用户信息
+    userInfo.value = "";
+    //pinia直接存储用户信息;
+    useUserStore().userInfo = "";
+    useUserStore().clearToken();
   }
 });
 
@@ -184,6 +199,10 @@ const goLogout = () => {
     .catch(() => {
       ElMessage.info({ message: "已取消" });
     });
+};
+// 进入购物车页面
+const goCart = () => {
+  router.push({ name: "Cart" });
 };
 </script>
 <style scoped>

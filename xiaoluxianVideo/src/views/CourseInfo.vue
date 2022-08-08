@@ -80,7 +80,7 @@
           <div class="desc">该课程暂无介绍</div>
           <div class="btn">
             <button class="btn-item active">立即购买</button>
-            <button class="btn-item">加入购物车</button>
+            <button class="btn-item" @click="addCartFn">加入购物车</button>
           </div>
         </div>
         <!-- <div v-if="active" class="video" v-for="item in 4" :key="item"> -->
@@ -141,12 +141,19 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import Header from "../components/common/Header.vue";
 import Foot from "../components/common/Foot.vue";
 //api
-import { getCourseDetail, courseCheckAuth, downloadAttachment } from "../api";
+import {
+  getCourseDetail,
+  courseCheckAuth,
+  downloadAttachment,
+  addShopCart,
+  createToken,
+} from "../api";
 import { onBeforeMount } from "vue";
 // 引入pinia的user模块
 import { useUserStore } from "@/store/user";
 import { useRouter } from "vue-router";
 import { downloadBlobFile } from "@/utils/request";
+import { rest } from "lodash";
 // 混入函数
 let { courseTypeFn } = mixin();
 
@@ -227,6 +234,33 @@ const goPlay = async (item, chapterId) => {
     name: "CoursePlay",
     params: { courseId: item.courseId, chapterId: chapterId },
   });
+};
+// 加入购物车;
+const addCartFn = async () => {
+  let resToken = await createToken();
+  console.log(resToken);
+  let token = resToken.data.token;
+  if (token) {
+    let res = await addShopCart(
+      {
+        courseId: courseId.value,
+        memberId: useUserStore().userInfo.id,
+      },
+      token
+    );
+    console.log(res);
+    if (res.meta.code === "200") {
+      ElMessage.success({
+        message: "加入购物车成功～",
+      });
+      return;
+    } else {
+      ElMessage.info({
+        // message: "添加失败～该课程已经在购物车中了!",
+        message: res.meta.msg,
+      });
+    }
+  }
 };
 </script>
 <style scoped>

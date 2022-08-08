@@ -4988,3 +4988,952 @@ icon {
 </style>
 
 ```
+
+### 购物车页面
+```
+逻辑：
+1. 新建Card.vue页面
+2. 在路由中添加
+3. 在购物车的路由判断是否是登录状态，如果是登录状态可以直接进入，如果不是登录状态，跳转到登录页
+```
+子路由独享导航守卫
+```
+      {
+        path: "cart",
+        name: "Cart",
+        component: () =>
+          import(/* webpackChunkName: "cart" */ "../views/Cart.vue"),
+        beforeEnter: (to, from, next) => {
+          console.log(useUserStore().userInfo.id);
+          if (useUserStore().userInfo.id) {
+            next();
+          } else {
+            next("/login");
+          }
+        },
+      },
+```
+购物车数据api封装
+```
+import request from './request'
+
+//获取购物车商品
+export function getShopCarList(){
+	return request({
+		url:'/api/shopcar/getShopCarList',
+	})
+}
+```
+cart.vue ，在store/cart.js中建立两个数组，一个存储数据，一个存储被选择的数组id，实现选择框的点选。
+```js
+// src\store\cart.js
+import { defineStore } from "pinia";
+export const useCartStore = defineStore({
+  id: "cart",
+  state: () => {
+    return {
+      cartList: [],
+      select: [],
+    };
+  },
+  getters: {
+    checkAll() {
+      // 判断是否全选，返回 true和false
+      return this.cartList.length == this.select.length;
+    },
+    total() {
+      let total = {
+        price: 0,
+        number: 0,
+      };
+      this.cartList.forEach((element) => {
+        if (this.select.indexOf(element.id) != -1) {
+          total.price += element.discountPrice * element.counter;
+          total.number = this.select.length;
+        }
+      });
+      return total;
+    },
+  },
+  actions: {
+    //获取数据
+    getCartList(list) {
+      list.forEach((item) => {
+        item["check"] = true;
+        this.select.push(item.id);
+      });
+      this.cartList = list;
+      console.log(this.cartList.length == this.select.length);
+    },
+    //全选
+    all() {
+      this.select = this.cartList.map((item) => {
+        item["check"] = true;
+        return item.id;
+      });
+    },
+    //全不选
+    unAll() {
+      this.cartList.forEach((item) => {
+        item["check"] = false;
+      });
+      this.select = [];
+    },
+    //单选,根据索引值查找id
+    checkItem(index) {
+      let id = this.cartList[index].id;
+      let idx = this.select.indexOf(id);
+      console.log(id, idx);
+      if (idx > -1) {
+        // select中有，则移除掉，
+        this.cartList[index].check = false;
+        this.select.splice(idx, 1);
+      } else {
+        this.cartList[index].check = true;
+        this.select.push(id);
+      }
+    },
+  },
+});
+
+```
+```vue
+<!-- src\views\Cart.vue -->
+<template>
+  <div class="fixed">
+    <div class="bg-color">
+      <h1 class="main-shopcart">购物车</h1>
+    </div>
+    <div class="container">
+      <div class="main">
+        <div class="nav">
+          <div class="left">全部课程</div>
+        </div>
+        <ul class="head">
+          <li class="item check all">
+            <el-checkbox v-model="checkAll" @change="checkAllFn"
+              >全选</el-checkbox
+            >
+          </li>
+          <li class="item class-info">课程信息</li>
+          <li class="item price">单价</li>
+          <li class="item count">数量</li>
+          <li class="item total">金额</li>
+          <li class="item action">操作</li>
+        </ul>
+        <div v-if="cartList.length > 0">
+          <ul
+            class="have-order"
+            v-for="(item, index) in cartList"
+            :key="item.id"
+          >
+            <li class="order-item">
+              <el-checkbox
+                v-model="item.check"
+                @change="cartStore.checkItem(index)"
+              ></el-checkbox>
+            </li>
+            <li class="order-item info">
+              <div class="course-img">
+                <img :src="item.courseCover" alt="" srcset="" />
+              </div>
+              <div class="course-name">课程一{{ item.id }}</div>
+            </li>
+            <li class="order-item">$10.00{{ item.discountPrice }}</li>
+            <li class="order-item num">10 {{ item.counter }}</li>
+            <li class="order-item totoal-price">
+              $222.00{{ item.discountPrice * item.counter }}
+            </li>
+            <li class="order-item delete">
+              <a href="javascript:;" @click="delItemFn(item.id)"
+                ><el-icon><Delete></Delete></el-icon>
+                <span class="deletd-text">删除</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="no-order" v-else>
+          <img src="" alt="" />
+          <div class="order-alert">暂无订单</div>
+        </div>
+        <el-divider class="line"></el-divider>
+        <ul class="foot">
+          <li class="foot-item">
+            已选课程<span class="unique">10-{{ total.number }}</span>
+          </li>
+          <li class="foot-item">
+            合计<span class="unique">2999-{{ total.price }}</span>
+          </li>
+          <li><button class="btn" @click="goOrderFn">去结算</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>
+<script setup>
+import { Delete } from "@element-plus/icons-vue";
+//api
+import { getShopCarList, createToken, deleteShopCart } from "@/api/index.js";
+import { ElMessage, ElMessageBox } from "element-plus";
+// 导入 pinia 中的 storeToRefs 方法
+import { storeToRefs } from "pinia";
+//pinia
+import { useCartStore } from "../store/cart";
+import { watchEffect } from "vue";
+// 实例化容器
+let cartStore = useCartStore();
+let { cartList, total, checkAll, select } = storeToRefs(cartStore);
+
+//生命周期
+onBeforeMount(() => {
+  getShopCarList().then((res) => {
+    cartStore.getCartList(res.data.list);
+  });
+});
+//点击全选
+const checkAllFn = () => {
+  if (checkAll.value) {
+    cartStore.unAll();
+  } else {
+    cartStore.all();
+  }
+};
+const delItemFn = (id) => {
+  ElMessageBox.confirm("确定删除该课程吗？", "删除", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(async () => {
+      let resToken = await createToken();
+      let tempToken = resToken.data.token;
+      if (tempToken) {
+        let res = await deleteShopCart({ id }, tempToken);
+        if (res.meta.code === "200") {
+          ElMessage.success({
+            message: "删除成功!",
+          });
+          // 重新获取数据
+          getShopCarList().then((res) => {
+            cartStore.getCartList(res.data.list);
+          });
+          return;
+        }
+      } else {
+        ElMessage.success({
+          message: resToken.msg,
+        });
+      }
+    })
+    .catch(() => {
+      ElMessage.info({
+        message: "已取消删除",
+      });
+    });
+};
+//去结算
+let router = useRouter();
+const goOrderFn = () => {
+  router.push("/ConfirmOrder");
+};
+</script>
+<style scoped>
+.fixed {
+  width: 1200px;
+  height: 100%;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+ul,
+li {
+  list-style: none;
+  margin: 0 0;
+  padding: 0 0;
+}
+.bg-color {
+  width: 100%;
+  height: 200px;
+  background-color: #ff0000;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+  /* text-align: center; */
+}
+.bg-color h1 {
+  padding-left: 20px;
+}
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.main-shop {
+  position: relative;
+  display: flex;
+  align-content: center;
+}
+.main-shop i {
+  font-size: 35px;
+  padding: 20px 10px 0 0;
+  color: #ff4400;
+  font-weight: bold;
+}
+.main-shopcart {
+  width: 1200px;
+  margin: 0 auto;
+  height: 42px;
+  font-size: 24px;
+  font-family: Microsoft YaHei;
+  font-weight: bold;
+  line-height: 35px;
+  color: #ffffff;
+  padding: 30px 0;
+  opacity: 1;
+}
+.container {
+  width: 1150px;
+  margin: -100px auto 50px auto;
+  background: #ebedf2;
+  border-radius: 12px;
+  box-shadow: 0px 2px 5px #888888;
+}
+.main {
+  padding: 20px;
+  border-radius: 5px;
+}
+.nav {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid #e6e6e6;
+}
+.nav .left {
+  width: 80px;
+  height: 26px;
+  font-size: 18px;
+  font-family: Microsoft YaHei;
+  font-weight: bold;
+  line-height: 0px;
+  color: #ff4400;
+  opacity: 1;
+  border-bottom: 2px solid #ff4400;
+}
+.nav .right {
+  width: 108px;
+  height: 24px;
+  font-size: 14px;
+  font-family: Microsoft YaHei;
+  font-weight: 400;
+  line-height: 0px;
+  color: #333333;
+  opacity: 0.5;
+}
+/* 订单列表头部开始 */
+.head,
+.have-order {
+  display: flex;
+  padding: 0 10px;
+  margin: 20px 0;
+  width: 100%;
+  height: 35px;
+  line-height: 35px;
+  background-color: #fcfcfc;
+  opacity: 1;
+  box-sizing: border-box;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px 2px #cccccc;
+}
+.head .item {
+  flex: 1;
+  min-width: 150px;
+  font-size: 14px;
+  color: #333333;
+}
+.check .all {
+  margin-right: 10px;
+}
+.class-info {
+  width: 400px;
+  color: #333333;
+}
+/* 订单列表头部结束 */
+.have-order {
+  height: 200px;
+  line-height: 200px;
+}
+/* 订单开始 */
+.have-order .order-item {
+  flex: 1;
+  margin: 5px;
+  height: 200px;
+  line-height: 200px;
+  min-width: 150px;
+  font-size: 16px;
+  color: #333333;
+}
+.have-order .order-item:first-child {
+  flex: 0 1 30px;
+  max-width: 30px;
+}
+.have-order .order-item.info {
+  flex: 2 0;
+  display: flex;
+
+  align-items: center;
+}
+.have-order .order-item.info .course-img {
+  width: 80px;
+  height: 80px;
+}
+.have-order .order-item.info .course-img img {
+  width: 100%;
+  height: 100%;
+  border: #333333 1px solid;
+  display: block;
+}
+.have-order .order-item.info .course-name {
+  padding-left: 5px;
+  width: 100px;
+  word-break: keep-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.have-order .order-item.num {
+  padding-left: 15px;
+}
+.have-order .order-item.totoal-price {
+  color: #e2231a;
+}
+.have-order .order-item.delete a {
+  cursor: pointer;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+a:hover {
+  color: #00a0c6;
+  text-decoration: none;
+  cursor: pointer;
+}
+.have-order .order-item.deletd-text {
+  margin-left: 5px;
+}
+/* 订单结束 */
+
+/* 暂无订单开始 */
+.no-order {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  margin: 200px 0;
+}
+.order-alert {
+  height: 31px;
+  font-size: 20px;
+  font-family: Microsoft YaHei;
+  font-weight: 400;
+  line-height: 0px;
+  color: #b5b9bc;
+  opacity: 1;
+  margin: 20px 120px;
+}
+/* 暂无订单结束 */
+/* 订单合计 */
+.foot {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  color: #333333;
+  margin-bottom: 10px;
+}
+
+.foot .foot-item {
+  width: 120px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #333;
+}
+.unique {
+  margin-left: 5px;
+  font-size: 24px;
+  color: #ff4400;
+}
+.btn {
+  width: 120px;
+  height: 40px;
+  margin-left: 20px;
+  border: none;
+  color: #ffffff;
+  font-size: 22px;
+  border-radius: 5px;
+  background: #ff4400;
+  cursor: pointer;
+  box-shadow: 0px 3px 5px 2px #ff727f;
+}
+</style>
+
+```
+
+
+
+### 结算页
+
+购物车数据流转入结算页，选择支付方式获取订单号和支付二维码，轮训支付情况。成功后跳转到课程页，删除购物车数据
+```
+<!-- src\views\ConfirmOrder.vue -->
+<template>
+  <div class="confirm-order">
+    <div class="bg-color">
+      <div class="main-shopcart">确认订单</div>
+    </div>
+    <div class="main">
+      <div class="info">
+        <div class="head">商品信息</div>
+        <div class="info-main" v-for="item in courses" :key="item.id">
+          <div class="course-info">
+            <div class="course-bg">
+              <img :src="item.courseCover" alt="" srcset="" />
+            </div>
+            <div class="course-name">课程名称-{{ item.courseName }}</div>
+            <div class="course-price">
+              <div class="now-price">1-{{ item.discountPrice }}</div>
+              <div class="old-price">2-{{ item.salePrice }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="choose">
+        <h3>
+          支付方式<span class="pay">{{ payment.description }}</span>
+        </h3>
+        <div class="choose-bg">
+          <span
+            class="wxpay"
+            v-for="item in payModes"
+            :key="item.code"
+            @click="tabPayment(item)"
+            ><img src="../assets/img/wxpay.png" title="微信支付" />微信支付-{{
+              item.description
+            }}</span
+          >
+          <!-- <span
+            ><img
+              src="../assets/img/zfbpay.png"
+              title="支付宝支付"
+            />支付宝支付</span
+          > -->
+        </div>
+      </div>
+      <ul class="foot">
+        <li class="foot-item">
+          应付<span class="unique">$299-{{ totalPrice }}</span>
+        </li>
+        <li>
+          <button class="btn" @click="goPayment">确认订单</button>
+        </li>
+      </ul>
+    </div>
+    <!-- 二维码对话框 -->
+    <el-dialog v-model="dialogVisible" width="500px">
+      <div class="dialog-price">支付：<span class="price">299元</span></div>
+      <div class="codeimg">
+        <img :src="payurl" alt="" srcset="" />
+      </div>
+      <div class="alert">请您及时付款，已便订单尽快处理！</div>
+      <div class="finish">
+        <div class="error">支付遇到问题</div>
+        <div class="success">我已支付</div>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup>
+import { ElDialog, ElMessage, ElMessageBox } from "element-plus";
+import { onBeforeMount, reactive } from "vue";
+// api
+import {
+  settlement,
+  alipayOrder,
+  wxpayOrder,
+  queryOrderWithAli,
+  queryOrderWithWx,
+  deleteShopCars,
+  createToken,
+} from "@/api/index.js";
+// pinia
+import { storeToRefs } from "pinia";
+import { useCartStore } from "../store/cart.js";
+
+let cartStore = useCartStore();
+let { orderList, select } = storeToRefs(cartStore);
+
+// dialog
+const dialogVisible = ref(false);
+// 结算的商品数据
+const courses = ref([]);
+// 总价格
+const totalPrice = ref(0);
+// 当前支付方式
+let payment = reactive({
+  description: "暂未选择支付方式",
+});
+// 支付方式列表
+let payModes = ref([]);
+// 支付的二维码
+let orderNumber = ref("");
+// 支付的订单号
+let payurl = ref("");
+// 定时器
+let timer = ref(null);
+// 选择支付的方式
+const tabPayment = (item) => {
+  payment.description = item.description;
+  payment.code = item.code;
+  if (item.code === "alipayment") {
+    alipayOrder({ paModes: item.code, courses: cartStore.orderList }).then(
+      (res) => {
+        // console.log(res);
+        payurl.value = res.data.payurl;
+        orderNumber.value = res.data.orderNumber;
+      }
+    );
+  } else {
+    wxpayOrder({ paModes: item.code, courses: cartStore.orderList }).then(
+      (res) => {
+        // console.log(res);
+        payurl.value = res.data.payurl;
+        orderNumber.value = res.data.orderNumber;
+      }
+    );
+  }
+};
+// 确认订单
+const goPayment = () => {
+  if (item.code === "alipayment") {
+    timer.value = setInterval(interPaymentAli, 3500);
+    dialogVisible.value = true;
+  } else {
+    timer.value = setInterval(interPaymentWx, 3500);
+    dialogVisible.value = true;
+  }
+};
+// 短轮询查询微信支付是否成功
+const interPaymentWx = () => {
+  queryOrderWithWx({ orderNumber: orderNumber.value }).then((res) => {
+    if (res.meta.code === "200") {
+      clearInterval(timer.value);
+      ElMessage.success({
+        message: "支付成功",
+      });
+      dialogVisible.value = false;
+      createToken().then((res) => {
+        // 删除购物车
+        deleteShopCars({ ids: select }, res.data.token).then((res) => {
+          console.log(res);
+          if (res && res.meta && res.meta.code === "200") {
+            // 跳转页面
+            router.push({ name: "Course" });
+          }
+        });
+      });
+    }
+  });
+};
+// 短轮询查询支付是否成功
+const interPaymentAli = () => {
+  queryOrderWithAli({ orderNumber: orderNumber.value }).then((res) => {
+    if (res.meta.code === "200") {
+      clearInterval(timer.value);
+      ElMessage.success({
+        message: "支付成功",
+      });
+      dialogVisible.value = false;
+    }
+  });
+};
+onBeforeMount(async () => {
+  console.log(orderList);
+  clearInterval(timer.value);
+  let res = await settlement(orderList.value);
+  if (res && res.meta && res.meta.code === "200") {
+    courses.value = res.data.courses;
+    totalPrice.value = res.data.totalPrice;
+    payModes.value = res.data.payModes;
+  }
+});
+</script>
+<style scoped>
+.confirm-order {
+  width: 100%;
+  min-width: 1200px;
+  padding-bottom: 60px;
+}
+.bg-color {
+  width: 1200px;
+  height: 200px;
+  background-color: red;
+  background-image: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.main-shopcart {
+  width: 100%;
+  margin: 0 auto;
+  height: 42px;
+  font-size: 24px;
+  font-family: Microsoft YaHei;
+  font-weight: bold;
+  line-height: 35px;
+  color: #ffffff;
+  padding: 30px 0;
+  opacity: 1;
+}
+.main {
+  margin: 0 auto;
+}
+.info {
+  padding: 5px 0px 20px 0px;
+  background: #f3f5f7;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px #888888;
+}
+.head {
+  padding: 20px;
+  font-size: 18px;
+  color: #333333;
+}
+.info-main {
+  margin: 10px 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+}
+/* 课程信息 */
+.course-info {
+  display: flex;
+  width: 100%;
+  height: 160px;
+  margin: 0 auto;
+}
+.course-bg {
+  width: 280px;
+  height: 160px;
+}
+.course-bg img {
+  width: 100%;
+  height: 100%;
+}
+.course-name {
+  margin: 0 20px;
+  width: 400px;
+  height: 160px;
+  font-size: 16px;
+  color: #07111b;
+  line-height: 160px;
+  word-break: keep-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.course-price {
+  margin-left: 100px;
+  height: 160px;
+  text-align: right;
+  line-height: 160px;
+}
+.course-price .now-price {
+  line-height: 80px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1c1f21;
+}
+.course-price .old-price {
+  line-height: 80px;
+  padding-left: 10px;
+  font-size: 14px;
+  text-decoration: line-through;
+  color: #93999f;
+}
+/* 支付开始 */
+.choose {
+  width: 1200px;
+  margin: 0 auto;
+}
+.choose h3 {
+  color: #222;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 0 20px;
+}
+.choose-bg {
+  display: flex;
+  margin: 20px;
+}
+.choose-bg span {
+  margin-top: 60px;
+  margin-right: 40px;
+}
+.payment {
+  width: 130px;
+  height: 50px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-right: 10px;
+  line-height: 50px;
+  display: flex;
+  padding: 0 10px;
+  align-items: center;
+}
+.payment i {
+  font-size: 35px;
+  margin-right: 10px;
+}
+.payment span {
+  line-height: 50px;
+  color: #222222;
+  font-weight: bold;
+}
+
+.pay-style {
+  background: url("/image/checkedVip.png") no-repeat;
+  background-size: 220px 111px;
+  background-position: -67px -59px;
+  border: #ff470a solid 1px !important;
+}
+.alipayment {
+  border: #bfbfbf solid 1px;
+  color: #01a8eb;
+}
+.wxpayment {
+  border: #bfbfbf solid 1px;
+  color: #01af37;
+}
+/* 支付结束 */
+.foot {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  color: #333333;
+  margin-bottom: 10px;
+}
+.foot-item {
+  width: 200px;
+  height: 50px;
+  line-height: 50px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #333333;
+}
+.foot-item:first-child {
+  margin-top: 3px;
+}
+.old {
+  margin-left: 10px;
+}
+.unique {
+  margin-left: 5px;
+  font-size: 24px;
+  color: #f01414;
+}
+.btn {
+  margin-right: 20px;
+  width: 150px;
+  height: 50px;
+  border: none;
+  color: #ffffff;
+  font-size: 20px;
+  border-radius: 5px;
+  background: #f01414;
+  cursor: pointer;
+  box-shadow: 0px 3px 5px 2px #ff727f;
+}
+/* 结算 */
+.pay-dialog {
+  text-align: center !important;
+  border-radius: 10px !important;
+}
+:deep(.el-dialog) {
+  text-align: center !important;
+  border-radius: 10px !important;
+}
+.dialog-price {
+  padding-bottom: 20px;
+  color: #93999f;
+}
+.dialog-price .price {
+  color: #f01414;
+}
+.pay {
+  font-size: 18px;
+  padding-left: 10px;
+  color: #f01414;
+}
+.codeimg {
+  margin: 0 auto;
+  border: #d2d2d2 solid 1px;
+  width: 150px;
+  height: 150px;
+}
+.codeimg img {
+  width: 100%;
+  height: 100%;
+}
+.alert {
+  padding: 20px 0;
+  font-size: 14px;
+  color: #93999f;
+}
+.finish {
+  width: 170px;
+
+  line-height: 30px;
+  margin: 0 auto;
+  display: flex;
+}
+.success {
+  margin-left: 20px;
+  width: 70px;
+  font-size: 12px;
+  background: rgba(54, 137, 255, 0.22);
+  color: #3692ff;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.error {
+  width: 100px;
+  font-size: 12px;
+  background: linear-gradient(90deg, #fc7979 0%, #da4848 100%);
+  color: #ffffff;
+  cursor: pointer;
+  border-radius: 8px;
+}
+</style>
+
+```

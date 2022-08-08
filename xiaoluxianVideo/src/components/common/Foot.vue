@@ -61,12 +61,13 @@ onBeforeMount(() => {
 </script>
 <style scoped>
 footer {
-  width: 100%;
+  width: 1200px;
   min-width: 1200px;
   height: 150px;
   background-color: #3483ff;
   opacity: 1;
   border-radius: 0px;
+  margin: 0 auto;
 }
 .footer-main {
   display: flex;

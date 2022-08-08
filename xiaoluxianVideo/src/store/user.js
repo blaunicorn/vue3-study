@@ -6,7 +6,7 @@ export const useUserStore = defineStore({
     return {
       token: "",
       loginTimer: 0,
-      userInfo:{}
+      userInfo: {},
     };
   },
   actions: {
@@ -18,6 +18,7 @@ export const useUserStore = defineStore({
     },
     clearToken() {
       this.token = "";
+      this.userInfo = {}; //增加退出登录，清除userInfo获取用户信息的内容
     },
   },
   // 开启数据缓存,默认sessionStorage,通过strategies配置项，可修改存储位置和key，通过paths配置项，配置 哪些参数需要持久化
@@ -27,7 +28,7 @@ export const useUserStore = defineStore({
       {
         key: "demo_user",
         storage: localStorage,
-        paths: ["token", "loginTimer"],
+        paths: ["token", "loginTimer", "userInfo"],
       },
     ],
   },

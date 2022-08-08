@@ -17,32 +17,34 @@
     <div class="new-course-content">
       <ul>
         <li class="course-item" v-for="item in newCourseList" :key="item.id">
-          <div class="course-info">
-            <div class="course-bg">
-              <img :src="item.courseCover" alt="" srcset="" />
-            </div>
-            <div class="course-name">{{ item.courseName }}js</div>
-            <div class="course-degree">
-              {{ item.courseLevel }}·{{ item.purchaseCouter }}--{{
-                courseTypeFn(item.courseLevel)
-              }}--初级 · 386人报名
-            </div>
-            <!-- <div class="course-price-pri">￥{{ item.discountPrice }}24</div> -->
-            <!-- 增加判断是否收费课程 -->
-            <div class="course-price-zero" v-if="item.discountPrice == 0">
-              <div class="pricefree">免费学习</div>
-              <el-icon :size="24" color="#808080"><Brush /></el-icon>
-            </div>
-            <div class="course-price" v-else-if="item.isMember == 1">
-              <div class="course-memberbg">
-                <span class="course-member">会员免费</span>
+          <router-link :to="{ path: '/course-info/' + item.id }">
+            <div class="course-info">
+              <div class="course-bg">
+                <img :src="item.courseCover" alt="" srcset="" />
               </div>
-              <div class="price">¥ {{ item.discountPrice }}</div>
+              <div class="course-name">{{ item.courseName }}js</div>
+              <div class="course-degree">
+                {{ item.courseLevel }}·{{ item.purchaseCouter }}--{{
+                  courseTypeFn(item.courseLevel)
+                }}--初级 · 386人报名
+              </div>
+              <!-- <div class="course-price-pri">￥{{ item.discountPrice }}24</div> -->
+              <!-- 增加判断是否收费课程 -->
+              <div class="course-price-zero" v-if="item.discountPrice == 0">
+                <div class="pricefree">免费学习</div>
+                <el-icon :size="24" color="#808080"><Brush /></el-icon>
+              </div>
+              <div class="course-price" v-else-if="item.isMember == 1">
+                <div class="course-memberbg">
+                  <span class="course-member">会员免费</span>
+                </div>
+                <div class="price">¥ {{ item.discountPrice }}</div>
+              </div>
+              <div class="course-price-pri" v-else>
+                <div class="price-pri">¥ {{ item.discountPrice }}</div>
+              </div>
             </div>
-            <div class="course-price-pri" v-else>
-              <div class="price-pri">¥ {{ item.discountPrice }}</div>
-            </div>
-          </div>
+          </router-link>
         </li>
       </ul>
     </div>

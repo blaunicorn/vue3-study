@@ -370,8 +370,9 @@ onBeforeMount(() => {
 </script>
 <style scoped>
 .course-main {
+  margin-top: 2px;
   padding: 20px 0;
-  width: 100%;
+  width: 1200px;
   height: 130px;
   background: #f3f5f9;
 }
