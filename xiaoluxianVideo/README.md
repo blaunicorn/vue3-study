@@ -138,6 +138,7 @@ npm install --save normalize.css
 ```
 import 'normalize.css/normalize.css'
 ```
+ps:此种方式不能消除ul li的padding，和border
 
 ### 创建头部组件
 ```js 
