@@ -4,6 +4,10 @@ import initVantUI from './plugins/vant';
 
 import router from "./router";
 
+import './assets/css/reset.css'
+import './assets/css/common.css'
+
+
 const app = createApp(App)
 // createApp(App).mount('#app')
 

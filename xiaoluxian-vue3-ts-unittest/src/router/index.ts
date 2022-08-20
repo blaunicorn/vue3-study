@@ -1,10 +1,14 @@
 // src\router\index.ts
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
+
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'
+import '../assets/css/default.css'
+
+
 import News from "../components/News.vue";
-
-
-const routes:Array<RouteRecordRaw> = [
+const routes: Array<RouteRecordRaw> = [
   { path: "/", redirect: "/Home" },
   // {
   //   path: "/index",
@@ -46,33 +50,110 @@ const routes:Array<RouteRecordRaw> = [
   //     },
   //   ],
   // },
-  { path: "/news", name: "News", component: News },
 
   {
     path: "/home",
     name: "Home",
     component: () => import("../components/Home.vue"),
-  },
+    redirect:'/home/news',
+    children:[
+  // 资讯页面
+  { path: "news", name: "News", component: News },
+  { path: "knowledge", name: "Knowledge", component: () => import("../views/Knowledge.vue"),},
   {
-    path: "/profile",
+    path: "detail",
+    name: "Detail",
+    component: () => import("../views/Detail.vue"),
+    props: (route: { query: { id: string; } }) => ({
+      id: (route.query.id),
+
+    }),},
+  {
+    path: "profile",
     name: "Profile",
     component: () => import("../components/Profile.vue"),
-    props:(route: { params: { id: number; name: string; }; }) => ({
-          id: Number(route.params.id),
-          name: route.params.name,
-
-        })
+    props: (route: { params: { id: number; name: string } }) => ({
+      id: Number(route.params.id),
+      name: route.params.name,
+    }),
     // props:(route: { query: { id: any; name: any; }; }) => ({
     //       id: route.query.id,
     //       name: route.query.name,
 
     //     })
+  },   
+]
   },
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    component: () => import("../views/Dashboard.vue"),
+    redirect:'/dashboard/admin/list',
+    children: [
+      {
+        path: "admin/list",
+        name: "AdminList",
+        component: () => import("../views/AdminList.vue"),
+      },
+      {
+        path: "role/list",
+        name: "RoleList",
+        component: () => import("../views/RoleList.vue"),
+      },
+      {
+        path: "cate/list",
+        name: "CateList",
+        component: () => import("../views/CateList.vue"),
+      },
+    ],
+  },
+  {
+    path: "/login",
+    name: "Login",
+    component: () => import("../views/Login.vue"),
+  },
+
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+router.beforeEach((to,from,next)=> {
+  NProgress.start();
+//  localStorage.setItem('testToken',"test")
+  const whiteList = ['/home','/login','/home/news','/home/knowledge','/home/detail','/home/profile'] // 白名单
+  const getToken = () => {
+    let value: string |null = localStorage.getItem('testToken')
+    return value
+  }
+  let hasToken = getToken()
+   console.log('to:',to,'from:',from, hasToken)
+  if (hasToken) {
+     if (to.path === '/login') {
+      // if is logged in, redirect to the home page
+      next({ path: '/dashboard' })
+     }
+     else {
+       next()
+     }
+  } else {
+    /* has no token*/
+    if (whiteList.indexOf(to.path) !== -1) {
+      console.log(to.path)
+      // in the free login whitelist, go directly
+      next()
+    } else {
+      // other pages that do not have permission to access are redirected to the login page.
+      next(`/login?redirect=${to.path}`)
+      
+    }
+  }
+})
+
+router.afterEach((to,from,next)=> {
+  NProgress.done();
+})
 
 export default router;

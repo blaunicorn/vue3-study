@@ -32,6 +32,7 @@ npm i unplugin-auto-import -D
 npm install axios -S
 npm install vant
 npm i unplugin-vue-components -D
+npm install --save nprogress
 ```
 
 vite.config.ts 配置
@@ -72,3 +73,5 @@ export default defineConfig({
 })
 
 ```
+项目初始化---样式重置
+
