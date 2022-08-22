@@ -23,7 +23,8 @@ export default defineConfig({
   // 设置api代理
   server: {
     proxy: {
-      "/api": "http://yw.52kfw.cn",
+      "/api": "https://yw.52kfw.cn",
+      changeOrigin: "true",
     },
   },
 })

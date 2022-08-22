@@ -16,8 +16,8 @@ Since TypeScript cannot handle type information for `.vue` imports, they are shi
 You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
 
 - vantUI
-- less 
 - axios
+-  页面编写，路由、评论
 
 ### 安装
 ```cmd 

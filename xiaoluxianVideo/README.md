@@ -3995,6 +3995,7 @@ import { createToken, getInfo, logout } from "../../api/index";
 
 let router = useRouter();
 // 处理图片路径
+// 或者简单粗暴直接放在pulic目录里
 const getImageUrl = (name) => {
   return new URL(`../../assets/img/${name}`, import.meta.url).href;
 };

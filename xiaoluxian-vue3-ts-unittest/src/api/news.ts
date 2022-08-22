@@ -106,7 +106,7 @@ export function getNewsListBCateId(
 // 资讯详情
 interface INewsDetailByIdResponse extends IResponse {
   data: {
-    
+    info:{}
   }
 }
 export function getNewsDetailById(
@@ -115,6 +115,81 @@ export function getNewsDetailById(
   return request({
     url: "/api/news/detail",
     method: "get",
+    headers: {
+  "Content-Type": "application/x-www-form-urlencoded"
+},
     params,
+  });
+}
+
+
+
+
+// 评论模块
+// 发布评论，需要授权
+interface ISubmitCommentResponse extends IResponse {
+
+}
+export function submitCommentToNews(
+  data:{title:string,content:any,newsId:string}
+): AxiosPromise<ISubmitCommentResponse> {
+  return request({
+    url: "/api/comment/submitComment",
+    method: "post",
+    data,
+  });
+}
+
+//  获取评论列表
+interface IGetCommentListResponse extends IResponse {
+  data: {
+    commentList:CommentList[];
+    total:number;
+  }
+}
+interface CommentList {
+    imageUrl: string;
+  _id: string;
+  title: string;
+  shortCut: string;
+  author: string;
+  cate_id: string;
+  isShow: boolean;
+  viewCount: number;
+  description: string;
+  createTime: string;
+  __v: number;
+}
+export function getCommentList(
+  params:{pageSize:number,currentPage:number,newsId:string}
+): AxiosPromise<IGetCommentListResponse> {
+  return request({
+    url: "/api/comment/getCommentList",
+    method: "get",
+    params,
+  });
+}
+
+// 用户登录
+interface ILoginResponse extends IResponse {
+ data:{
+  userInfo:{
+    _id:string,
+    imageUrl:string,
+    isShow:boolean,
+    name:string,
+    email:string,
+    jurisdiction:[]
+  },
+  token:string
+ }
+}
+export function login(
+  data:{username:"gogery@163.com",password:'admin'}
+): AxiosPromise<ILoginResponse> {
+  return request({
+    url: "/api/v1/user/login",
+    method: "post",
+    data,
   });
 }
